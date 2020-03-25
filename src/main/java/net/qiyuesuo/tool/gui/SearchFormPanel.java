@@ -3,11 +3,16 @@ package net.qiyuesuo.tool.gui;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractButton;
@@ -25,17 +30,21 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 
+import net.qiyuesuo.tool.position.KeywordPosition;
 import net.qiyuesuo.tool.position.KeywordSearchOptions;
 import net.qiyuesuo.tool.position.KeywordSearchOptions.PositionType;
+import net.qiyuesuo.tool.position.PdfKeywordUtils;
 import net.qiyuesuo.tool.utils.ImageUtil;
 
-public class SearchFormPanel extends JPanel implements BasePanel{
+public class SearchFormPanel extends JPanel implements BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
 	private static String CURRENT_DIRECTORY = System.getProperty("user.dir");
 
-	private static String pdfPathStr;
+	private static byte[] pdfBytes = null;
+
+	private static KeywordSearchOptions searchOptions = new KeywordSearchOptions();
 
 	private JTextField keywordField;
 
@@ -54,7 +63,7 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 	private JCheckBox ihCheckBox;
 
 	private JCheckBox ipCheckBox;
-	
+
 	private ComContext comContext;
 
 	private JTextField pdfPathField;
@@ -62,7 +71,7 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 	public SearchFormPanel(ComContext comContext) {
 		this.comContext = comContext;
 		this.comContext.setSearchFormPanel(this);
-		
+
 		this.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH, CompSize.SEARCH_FORM_HEIGHT));
 
 		this.add(filechooserPanel());
@@ -77,6 +86,12 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 
 		this.add(searchPanel());
 	}
+	
+	
+
+	public static byte[] getPdfBytes() {
+		return pdfBytes;
+	}
 
 	private JPanel searchPanel() {
 		JPanel searchPanel = getBasePanel();
@@ -87,9 +102,29 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 		searchButton.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH - 30, CompSize.FILE_CHOORE_BUTTON_HEIGHT));
 
 		searchButton.addActionListener((e) -> {
-			KeywordSearchOptions searchOptions = getSearchOptions();
-			if(searchOptions == null) {
+			if (pdfBytes == null || pdfBytes.length == 0) {
+				JOptionPane.showMessageDialog(comContext.getMainFrame(), "请先选择文件");
 				return;
+			}
+			
+			String keyword = keywordField.getText();
+			if (keyword == null || "".equals(keyword.trim())) {
+				JOptionPane.showMessageDialog(comContext.getMainFrame(), "关键字不能不为空");
+				return;
+			}
+			handleSearchOptions();
+			try {
+				Map<String, ArrayList<KeywordPosition>> keywordMap = PdfKeywordUtils.queryKeyword(pdfBytes, searchOptions);
+				List<KeywordPosition> positions = new ArrayList<>();
+				keywordMap.forEach((k, v) -> {
+					positions.addAll(v);
+				});
+				
+				comContext.getCenterPanel().paintPositions(positions,searchOptions);
+				if(positions.size() == 0) {
+					JOptionPane.showMessageDialog(comContext.getMainFrame(), "未找到关键字");
+				}
+			} catch (Exception e1) {
 			}
 		});
 		searchPanel.add(searchButton);
@@ -97,13 +132,8 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 		return searchPanel;
 	}
 
-	private KeywordSearchOptions getSearchOptions() {
-		KeywordSearchOptions searchOptions = new KeywordSearchOptions();
+	private void handleSearchOptions() {
 		String keyword = keywordField.getText();
-		if (keyword == null || "".equals(keyword.trim())) {
-			JOptionPane.showMessageDialog(this, "关键字不能不为空");
-			return null;
-		}
 		searchOptions.setKeywords(new HashSet<String>(Arrays.asList(keyword.split(","))));
 
 		int start = 1;
@@ -119,31 +149,30 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 		} catch (Exception e1) {
 		}
 		searchOptions.setPageEnd(end);
-		
+
 		int index = 1;
 		try {
 			index = Integer.parseInt(indexField.getText());
 		} catch (Exception e1) {
 		}
 		searchOptions.setKeyIndex(index);
-				
+
 		PositionType positionType = PositionType.LEFT_BOTTOM;
 		Enumeration<AbstractButton> elements = positionGroup.getElements();
-		while(elements.hasMoreElements()) {
+		while (elements.hasMoreElements()) {
 			JRadioButton jRadioButton = (JRadioButton) elements.nextElement();
-			if(jRadioButton.isSelected()) {
+			if (jRadioButton.isSelected()) {
 				positionType = PositionType.valueOf(jRadioButton.getName());
 				break;
 			}
 		}
 		searchOptions.setPosition(positionType);
-		
+
 		searchOptions.setIgnoreKeywordSpace(ikCheckBox.isSelected());
 		searchOptions.setIgnoreContentSpace(icCheckBox.isSelected());
 		searchOptions.setIgnoreNewline(ihCheckBox.isSelected());
 		searchOptions.setIgnoreNewpage(ipCheckBox.isSelected());
-		
-		return searchOptions;
+
 	}
 
 	private JPanel otherPanel() {
@@ -179,17 +208,17 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 		positionPanel.add(getBaseLabel("位置："));
 
 		positionGroup = new ButtonGroup();
-		positionPanel.add(getJRadioButton("左上",PositionType.LEFT_TOP, positionGroup));
-		JRadioButton ld = getJRadioButton("左下",PositionType.LEFT_BOTTOM, positionGroup);
+		positionPanel.add(getJRadioButton("左上", PositionType.LEFT_TOP, positionGroup));
+		JRadioButton ld = getJRadioButton("左下", PositionType.LEFT_BOTTOM, positionGroup);
 		positionPanel.add(ld);
-		positionPanel.add(getJRadioButton("右上",PositionType.RIGHT_TOP, positionGroup));
-		positionPanel.add(getJRadioButton("右下",PositionType.RIGHT_BOTTOM, positionGroup));
+		positionPanel.add(getJRadioButton("右上", PositionType.RIGHT_TOP, positionGroup));
+		positionPanel.add(getJRadioButton("右下", PositionType.RIGHT_BOTTOM, positionGroup));
 
 		ld.setSelected(true);
 		return positionPanel;
 	}
 
-	private JRadioButton getJRadioButton(String title,PositionType positionType,ButtonGroup bg) {
+	private JRadioButton getJRadioButton(String title, PositionType positionType, ButtonGroup bg) {
 		JRadioButton jrb = new JRadioButton(title);
 		jrb.setName(positionType.name());
 		bg.add(jrb);
@@ -205,6 +234,7 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 		startField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
 		startField.setText("1");
 		startField.setHorizontalAlignment(SwingConstants.CENTER);
+		startField.addFocusListener(new SeachOptionFocusListener(this));
 		pagePanel.add(startField);
 
 		JLabel label1 = new JLabel("~");
@@ -215,6 +245,7 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 		endField = new JTextField();
 		endField.setHorizontalAlignment(SwingConstants.CENTER);
 		endField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
+		endField.addFocusListener(new SeachOptionFocusListener(this));
 		pagePanel.add(endField);
 
 		JLabel label2 = new JLabel("页     查询第");
@@ -225,12 +256,32 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 		indexField.setText("1");
 		indexField.setHorizontalAlignment(SwingConstants.CENTER);
 		indexField.setToolTipText("<html>0：全部 <br>n：第n个<br>-n：表示倒数第n个</html>");
+		indexField.addFocusListener(new SeachOptionFocusListener(this));
 		pagePanel.add(indexField);
 
 		JLabel label3 = new JLabel("个关键字");
 		pagePanel.add(label3);
 
 		return pagePanel;
+	}
+	
+	static class SeachOptionFocusListener implements FocusListener{
+		
+		private SearchFormPanel searchFormPanel;
+
+		public SeachOptionFocusListener(SearchFormPanel searchFormPanel) {
+			super();
+			this.searchFormPanel = searchFormPanel;
+		}
+		
+		@Override
+		public void focusLost(FocusEvent e) {
+			searchFormPanel.handleSearchOptions();
+		}
+		@Override
+		public void focusGained(FocusEvent e) {
+		}
+		
 	}
 
 	// 关键字选择框
@@ -274,8 +325,8 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 			int index = filechooserOpen.showDialog(null, "打开文档");
 			if (index == JFileChooser.APPROVE_OPTION) {
 				// 把获取到的文件的绝对路径显示在文本编辑框中
-				pdfPathStr = filechooserOpen.getSelectedFile().getAbsolutePath();
-				handlePdfFile(pdfPathStr);
+				String pdfPathStr = filechooserOpen.getSelectedFile().getAbsolutePath();
+				paintPdfImage(pdfPathStr);
 			}
 		});
 
@@ -285,15 +336,28 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 		return filePanel;
 	}
 
-	public void handlePdfFile(String pdfPath) {
-		this.pdfPathStr = pdfPath;
-		pdfPathField.setText(pdfPathStr);
-		CURRENT_DIRECTORY = pdfPathStr;
-		Map<Integer, BufferedImage> images = ImageUtil.getImages(pdfPathStr, 1, 0);
+	public void paintPdfImage(String pdfPath) {
+		pdfPathField.setText(pdfPath);
+		CURRENT_DIRECTORY = pdfPath;
+		try {
+			pdfBytes = Files.readAllBytes(new File(pdfPath).toPath());
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(comContext.getMainFrame(), "文件加载错误");
+			return;
+		}
+		Map<Integer, BufferedImage> images = ImageUtil.getImages(pdfBytes, searchOptions.getPage(), searchOptions.getPageEnd());
 		this.comContext.getCenterPanel().paintImage(images);
 		String endText = endField.getText();
-		if(endText == null || "".equals(endText.trim())) {
-			endField.setText(""+images.size());
+		if (endText == null || "".equals(endText.trim())) {
+			endField.setText("" + images.size());
+		} else {
+			try {
+				if (Integer.parseInt(endText) > Math.max(searchOptions.getPage(), searchOptions.getPageEnd())) {
+					endField.setText("" + images.size());
+				}
+			} catch (Exception e) {
+				endField.setText("" + images.size());
+			}
 		}
 	}
 
@@ -336,10 +400,6 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 	@Override
 	public ComContext getComContext() {
 		return comContext;
-	}
-
-	public static String getPdfPathStr() {
-		return pdfPathStr;
 	}
 
 	public JTextField getKeywordField() {
@@ -385,6 +445,5 @@ public class SearchFormPanel extends JPanel implements BasePanel{
 	public void setComContext(ComContext comContext) {
 		this.comContext = comContext;
 	}
-
 
 }

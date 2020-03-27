@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class CenterPanel extends JPanel implements BasePanel {
 
 	private Map<Integer, ImgPanel> images = new TreeMap<Integer, ImgPanel>();
 
-	public List<KeywordPosition> positions = new ArrayList<>();
+	private Map<String, ArrayList<KeywordPosition>> positionMap = new HashMap<>();
 
 	private ComContext comContext; // 主面板
 
@@ -65,7 +66,6 @@ public class CenterPanel extends JPanel implements BasePanel {
 	}
 
 	public void paintPositions(List<KeywordPosition> positionList, KeywordSearchOptions searchOptions) {
-		this.setPositions(positionList);
 		Boolean needRepaint = false;
 		int start = searchOptions.getPage();
 		int end = searchOptions.getPageEnd();
@@ -174,15 +174,21 @@ public class CenterPanel extends JPanel implements BasePanel {
 				ufe.printStackTrace();
 			}
 		}
+	}
+	
+	public Map<String, ArrayList<KeywordPosition>> getPositionMap() {
+		return positionMap;
+	}
 
+	public void setPositionMap(Map<String, ArrayList<KeywordPosition>> positionMap) {
+		this.positionMap = positionMap;
 	}
 
 	public List<KeywordPosition> getPositions() {
+		List<KeywordPosition> positions = new ArrayList<>();
+		positionMap.forEach((k, v) -> {
+			positions.addAll(v);
+		});
 		return positions;
 	}
-
-	public void setPositions(List<KeywordPosition> positions) {
-		this.positions = positions;
-	}
-
 }

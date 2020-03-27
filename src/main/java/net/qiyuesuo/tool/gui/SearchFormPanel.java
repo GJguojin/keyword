@@ -37,6 +37,7 @@ import net.qiyuesuo.tool.position.KeywordSearchOptions;
 import net.qiyuesuo.tool.position.KeywordSearchOptions.PositionType;
 import net.qiyuesuo.tool.position.PdfKeywordUtils;
 import net.qiyuesuo.tool.utils.ImageUtil;
+import net.qiyuesuo.tool.utils.PdfTextUtil;
 
 public class SearchFormPanel extends JPanel implements BasePanel {
 
@@ -116,12 +117,10 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 			}
 			handleSearchOptions();
 			try {
+				PdfTextUtil.readPdf(pdfBytes,searchOptions.getPage(), searchOptions.getPageEnd());
 				Map<String, ArrayList<KeywordPosition>> keywordMap = PdfKeywordUtils.queryKeyword(pdfBytes, searchOptions);
-				List<KeywordPosition> positions = new ArrayList<>();
-				keywordMap.forEach((k, v) -> {
-					positions.addAll(v);
-				});
-
+				comContext.getCenterPanel().setPositionMap(keywordMap);
+				List<KeywordPosition> positions = comContext.getCenterPanel().getPositions();
 				comContext.getCenterPanel().paintPositions(positions, searchOptions);
 				if (positions.size() == 0) {
 					JOptionPane.showMessageDialog(comContext.getMainFrame(), "未找到关键字");
@@ -389,6 +388,8 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 			JOptionPane.showMessageDialog(comContext.getMainFrame(), "文件加载错误");
 			return;
 		}
+		PdfTextUtil.clear();
+		PdfTextUtil.readPdf(pdfBytes,searchOptions.getPage(), searchOptions.getPageEnd());
 		Map<Integer, BufferedImage> images = ImageUtil.getImages(pdfBytes, searchOptions.getPage(), searchOptions.getPageEnd());
 		this.comContext.getCenterPanel().paintImage(images);
 		String endText = endField.getText();

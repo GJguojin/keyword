@@ -6,17 +6,24 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 public class ImageUtil {
 
-	public static BufferedImage getImage(byte[] pdfBtyes, int page) {
+	public static BufferedImage getImage(byte[] pdfBtyes, int pageNo) {
+		pageNo = pageNo - 1;
 		PDDocument document = null;
 		try {
 			document = PDDocument.load(pdfBtyes);
 			PDFRenderer renderer = new PDFRenderer(document);
-
-			return renderer.renderImageWithDPI(page - 1, 144);
+			PDPage page = document.getPage(pageNo);
+			PDRectangle cropbBox = page.getCropBox();
+			float width = cropbBox.getWidth();
+			float height = cropbBox.getHeight();
+			float scale = ImageScaleUtil.scale(width, height);
+			return renderer.renderImage(pageNo, scale);
 		} catch (Exception e) {
 			return null;
 		} finally {

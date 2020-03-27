@@ -5,6 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
@@ -54,6 +56,8 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 
 	private JTextField indexField;
 
+	private JTextField totalPageField;
+
 	private ButtonGroup positionGroup;
 
 	private JCheckBox ikCheckBox;
@@ -86,8 +90,6 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 
 		this.add(searchPanel());
 	}
-	
-	
 
 	public static byte[] getPdfBytes() {
 		return pdfBytes;
@@ -106,7 +108,7 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 				JOptionPane.showMessageDialog(comContext.getMainFrame(), "请先选择文件");
 				return;
 			}
-			
+
 			String keyword = keywordField.getText();
 			if (keyword == null || "".equals(keyword.trim())) {
 				JOptionPane.showMessageDialog(comContext.getMainFrame(), "关键字不能不为空");
@@ -119,15 +121,17 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 				keywordMap.forEach((k, v) -> {
 					positions.addAll(v);
 				});
-				
-				comContext.getCenterPanel().paintPositions(positions,searchOptions);
-				if(positions.size() == 0) {
+
+				comContext.getCenterPanel().paintPositions(positions, searchOptions);
+				if (positions.size() == 0) {
 					JOptionPane.showMessageDialog(comContext.getMainFrame(), "未找到关键字");
 				}
 			} catch (Exception e1) {
 			}
 		});
 		searchPanel.add(searchButton);
+
+		handleSearchOptions();
 
 		return searchPanel;
 	}
@@ -230,11 +234,15 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 		JPanel pagePanel = getBasePanel();
 		pagePanel.add(getBaseLabel("页数："));
 
+		JLabel label0 = new JLabel("从");
+		pagePanel.add(label0);
+
 		startField = new JTextField();
 		startField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
 		startField.setText("1");
 		startField.setHorizontalAlignment(SwingConstants.CENTER);
 		startField.addFocusListener(new SeachOptionFocusListener(this));
+		startField.addKeyListener(new VoteElectKeyListener(true,false));
 		pagePanel.add(startField);
 
 		JLabel label1 = new JLabel("~");
@@ -243,13 +251,25 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 		pagePanel.add(label1);
 
 		endField = new JTextField();
+		endField.setText("3");
 		endField.setHorizontalAlignment(SwingConstants.CENTER);
 		endField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
 		endField.addFocusListener(new SeachOptionFocusListener(this));
+		endField.addKeyListener(new VoteElectKeyListener(true,false));
 		pagePanel.add(endField);
 
-		JLabel label2 = new JLabel("页     查询第");
+		JLabel label2 = new JLabel("页 共");
 		pagePanel.add(label2);
+
+		totalPageField = new JTextField();
+		totalPageField.setHorizontalAlignment(SwingConstants.CENTER);
+		totalPageField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH - 15, CompSize.BASE_FORM_PANEL_HEIGHT));
+		totalPageField.setEditable(false);
+//		totalPageField.setBorder(new EmptyBorder(0,0,0,0));
+		pagePanel.add(totalPageField);
+
+		JLabel label3 = new JLabel("页 第");
+		pagePanel.add(label3);
 
 		indexField = new JTextField();
 		indexField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
@@ -257,31 +277,56 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 		indexField.setHorizontalAlignment(SwingConstants.CENTER);
 		indexField.setToolTipText("<html>0：全部 <br>n：第n个<br>-n：表示倒数第n个</html>");
 		indexField.addFocusListener(new SeachOptionFocusListener(this));
+		indexField.addKeyListener(new VoteElectKeyListener(true,true));
 		pagePanel.add(indexField);
 
-		JLabel label3 = new JLabel("个关键字");
-		pagePanel.add(label3);
+		JLabel label4 = new JLabel("个关键字");
+		pagePanel.add(label4);
 
 		return pagePanel;
 	}
-	
-	static class SeachOptionFocusListener implements FocusListener{
-		
+
+	static class SeachOptionFocusListener implements FocusListener {
+
 		private SearchFormPanel searchFormPanel;
 
 		public SeachOptionFocusListener(SearchFormPanel searchFormPanel) {
 			super();
 			this.searchFormPanel = searchFormPanel;
 		}
-		
+
 		@Override
 		public void focusLost(FocusEvent e) {
 			searchFormPanel.handleSearchOptions();
 		}
+
 		@Override
 		public void focusGained(FocusEvent e) {
 		}
-		
+
+	}
+
+	static class VoteElectKeyListener implements KeyListener {
+		private boolean subtractable;
+		private boolean zeroable;
+		public VoteElectKeyListener(boolean zeroable,boolean subtractable) {
+			super();
+			this.zeroable = zeroable;
+			this.subtractable = subtractable;
+		}
+		@Override
+		public void keyTyped(KeyEvent e) {
+			int keyChar = e.getKeyChar();
+			if (zeroable && keyChar == KeyEvent.VK_0 ||  keyChar > KeyEvent.VK_0 && keyChar <= KeyEvent.VK_9 || subtractable && keyChar == 45) {
+				
+			} else {
+				e.consume();
+			}
+		}
+		@Override
+		public void keyPressed(KeyEvent e) {}
+		@Override
+		public void keyReleased(KeyEvent e) {}
 	}
 
 	// 关键字选择框
@@ -329,7 +374,6 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 				paintPdfImage(pdfPathStr);
 			}
 		});
-
 		filePanel.add(photoButton);
 		filePanel.add(pdfPathField);
 
@@ -359,6 +403,7 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 				endField.setText("" + images.size());
 			}
 		}
+		totalPageField.setText("" + images.size());
 	}
 
 	private JLabel getBaseLabel(String title) {

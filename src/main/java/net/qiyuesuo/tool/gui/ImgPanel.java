@@ -7,8 +7,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.swing.JButton;
@@ -16,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.qiyuesuo.tool.position.KeywordPosition;
+import net.qiyuesuo.tool.utils.PositionUtil;
 
 public class ImgPanel extends JPanel {
 
@@ -28,7 +30,7 @@ public class ImgPanel extends JPanel {
 
 	private ComContext comContext; // 主面板
 
-	private List<JPanel> positionPanels = new ArrayList<>();
+	private Map<String,JPanel> positionPanels = new TreeMap<>();
 
 	public ImgPanel(int page, BufferedImage bufferedImage, ComContext comContext) {
 		super();
@@ -87,8 +89,8 @@ public class ImgPanel extends JPanel {
 	}
 
 	public void paintPosition() {
-		positionPanels.forEach(pp -> {
-			this.remove(pp);
+		positionPanels.forEach((k,v) -> {
+			this.remove(v);
 		});
 		positionPanels.clear();
 
@@ -102,8 +104,8 @@ public class ImgPanel extends JPanel {
 				.collect(Collectors.toList());
 		for (KeywordPosition position : positions) {
 			JPanel jpanel = new JPanel();
-			positionPanels.add(jpanel);
-			jpanel.setBackground(new Color(0, 255, 0, 100));
+			positionPanels.put(PositionUtil.getKey(position),jpanel);
+			jpanel.setBackground(CompSize.BASE_COLOR_DARK_TRANPARENT);
 			jpanel.setBounds((int) (realWidth * position.getX()), (int) (realHeight * (1 - position.getY()) - rectHeight), rectWidth, rectHeight);
 			this.add(jpanel);
 		}

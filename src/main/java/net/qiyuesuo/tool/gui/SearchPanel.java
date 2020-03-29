@@ -10,6 +10,7 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -22,6 +23,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -39,7 +41,7 @@ import net.qiyuesuo.tool.position.PdfKeywordUtils;
 import net.qiyuesuo.tool.utils.ImageUtil;
 import net.qiyuesuo.tool.utils.PdfTextUtil;
 
-public class SearchFormPanel extends JPanel implements BasePanel {
+public class SearchPanel extends JPanel implements BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -51,11 +53,11 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 
 	private JTextField keywordField;
 
-	private JTextField startField;
+	private JFormattedTextField startField;
 
-	private JTextField endField;
+	private JFormattedTextField endField;
 
-	private JTextField indexField;
+	private JFormattedTextField indexField;
 
 	private JTextField totalPageField;
 
@@ -73,9 +75,9 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 
 	private JTextField pdfPathField;
 
-	public SearchFormPanel(ComContext comContext) {
+	public SearchPanel(ComContext comContext) {
 		this.comContext = comContext;
-		this.comContext.setSearchFormPanel(this);
+		this.comContext.setSearchPanel(this);
 
 		this.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH, CompSize.SEARCH_FORM_HEIGHT));
 
@@ -122,10 +124,12 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 				comContext.getCenterPanel().setPositionMap(keywordMap);
 				List<KeywordPosition> positions = comContext.getCenterPanel().getPositions();
 				comContext.getCenterPanel().paintPositions(positions, searchOptions);
+				comContext.getPositionPanel().paintPosition();
 				if (positions.size() == 0) {
 					JOptionPane.showMessageDialog(comContext.getMainFrame(), "未找到关键字");
 				}
 			} catch (Exception e1) {
+				throw new RuntimeException(e1);
 			}
 		});
 		searchPanel.add(searchButton);
@@ -236,12 +240,12 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 		JLabel label0 = new JLabel("从");
 		pagePanel.add(label0);
 
-		startField = new JTextField();
+		startField = getNumberTextField(false,1);
 		startField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
 		startField.setText("1");
 		startField.setHorizontalAlignment(SwingConstants.CENTER);
 		startField.addFocusListener(new SeachOptionFocusListener(this));
-		startField.addKeyListener(new VoteElectKeyListener(true,false));
+		startField.addKeyListener(new VoteElectKeyListener(false, false));
 		pagePanel.add(startField);
 
 		JLabel label1 = new JLabel("~");
@@ -249,12 +253,12 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 		label1.setHorizontalAlignment(SwingConstants.CENTER);
 		pagePanel.add(label1);
 
-		endField = new JTextField();
+		endField = getNumberTextField(false,3);
 		endField.setText("3");
 		endField.setHorizontalAlignment(SwingConstants.CENTER);
 		endField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
 		endField.addFocusListener(new SeachOptionFocusListener(this));
-		endField.addKeyListener(new VoteElectKeyListener(true,false));
+		endField.addKeyListener(new VoteElectKeyListener(false, false));
 		pagePanel.add(endField);
 
 		JLabel label2 = new JLabel("页 共");
@@ -270,13 +274,12 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 		JLabel label3 = new JLabel("页 第");
 		pagePanel.add(label3);
 
-		indexField = new JTextField();
+		indexField = getNumberTextField(true,0);
 		indexField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
-		indexField.setText("1");
 		indexField.setHorizontalAlignment(SwingConstants.CENTER);
 		indexField.setToolTipText("<html>0：全部 <br>n：第n个<br>-n：表示倒数第n个</html>");
 		indexField.addFocusListener(new SeachOptionFocusListener(this));
-		indexField.addKeyListener(new VoteElectKeyListener(true,true));
+		indexField.addKeyListener(new VoteElectKeyListener(true, true));
 		pagePanel.add(indexField);
 
 		JLabel label4 = new JLabel("个关键字");
@@ -284,12 +287,45 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 
 		return pagePanel;
 	}
+	
+	private JFormattedTextField getNumberTextField(boolean zeroable,int defValue) {
+		NumberFormat integerInstance = NumberFormat.getIntegerInstance();
+		if(! zeroable) {
+			integerInstance.setMaximumIntegerDigits(1);
+			integerInstance.setMinimumFractionDigits(0);
+		}
+		JFormattedTextField jFormattedTextField = new JFormattedTextField(integerInstance);
+		jFormattedTextField.setValue(defValue);
+		return jFormattedTextField;
+	}
+	
+	static class VoteElectKeyListener implements KeyListener {
+		private boolean subtractable;
+		private boolean zeroable;
+		public VoteElectKeyListener(boolean zeroable,boolean subtractable) {
+			super();
+			this.zeroable = zeroable;
+			this.subtractable = subtractable;
+		}
+		@Override
+		public void keyTyped(KeyEvent e) {
+			int keyChar = e.getKeyChar();
+			if (zeroable && keyChar == KeyEvent.VK_0 ||  keyChar > KeyEvent.VK_0 && keyChar <= KeyEvent.VK_9 || subtractable && keyChar == 45) {
+			} else {
+				e.consume();
+			}
+		}
+		@Override
+		public void keyPressed(KeyEvent e) {}
+		@Override
+		public void keyReleased(KeyEvent e) {}
+	}
 
 	static class SeachOptionFocusListener implements FocusListener {
 
-		private SearchFormPanel searchFormPanel;
+		private SearchPanel searchFormPanel;
 
-		public SeachOptionFocusListener(SearchFormPanel searchFormPanel) {
+		public SeachOptionFocusListener(SearchPanel searchFormPanel) {
 			super();
 			this.searchFormPanel = searchFormPanel;
 		}
@@ -305,35 +341,13 @@ public class SearchFormPanel extends JPanel implements BasePanel {
 
 	}
 
-	static class VoteElectKeyListener implements KeyListener {
-		private boolean subtractable;
-		private boolean zeroable;
-		public VoteElectKeyListener(boolean zeroable,boolean subtractable) {
-			super();
-			this.zeroable = zeroable;
-			this.subtractable = subtractable;
-		}
-		@Override
-		public void keyTyped(KeyEvent e) {
-			int keyChar = e.getKeyChar();
-			if (zeroable && keyChar == KeyEvent.VK_0 ||  keyChar > KeyEvent.VK_0 && keyChar <= KeyEvent.VK_9 || subtractable && keyChar == 45) {
-				
-			} else {
-				e.consume();
-			}
-		}
-		@Override
-		public void keyPressed(KeyEvent e) {}
-		@Override
-		public void keyReleased(KeyEvent e) {}
-	}
-
 	// 关键字选择框
 	private JPanel keywordPanel() {
 		JPanel keywordPanel = getBasePanel();
 		keywordPanel.add(getBaseLabel("关键字："));
 
 		keywordField = new JTextField();
+		keywordField.setText("合同");
 		keywordField.setPreferredSize(new Dimension(CompSize.PDF_PATH_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
 		keywordPanel.add(keywordField);
 		keywordField.setToolTipText("多个关键字用‘,’隔开");

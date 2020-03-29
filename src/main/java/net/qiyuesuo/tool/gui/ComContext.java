@@ -12,9 +12,11 @@ public class ComContext {
 	
 	private ImgPanel imgPanel;
 	
-	private SearchFormPanel searchFormPanel;
+	private SearchPanel searchPanel;
 	
 	private JScrollPane centerScrollPane;
+	
+	private PositionPanel positionPanel;
 
 	public MainFrame getMainFrame() {
 		return mainFrame;
@@ -48,12 +50,13 @@ public class ComContext {
 		this.imgPanel = imgPanel;
 	}
 
-	public SearchFormPanel getSearchFormPanel() {
-		return searchFormPanel;
+
+	public SearchPanel getSearchPanel() {
+		return searchPanel;
 	}
 
-	public void setSearchFormPanel(SearchFormPanel searchFormPanel) {
-		this.searchFormPanel = searchFormPanel;
+	public void setSearchPanel(SearchPanel searchPanel) {
+		this.searchPanel = searchPanel;
 	}
 
 	public JScrollPane getCenterScrollPane() {
@@ -63,4 +66,13 @@ public class ComContext {
 	public void setCenterScrollPane(JScrollPane centerScrollPane) {
 		this.centerScrollPane = centerScrollPane;
 	}
+
+	public PositionPanel getPositionPanel() {
+		return positionPanel;
+	}
+
+	public void setPositionPanel(PositionPanel positionPanel) {
+		this.positionPanel = positionPanel;
+	}
+	
 }

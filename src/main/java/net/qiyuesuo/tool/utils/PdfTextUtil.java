@@ -20,6 +20,9 @@ public class PdfTextUtil {
 	public static void clear() {
 		textMap.clear();
 		lastRender = null;
+		if(pdfReader != null) {
+			pdfReader.close();
+		}
 		pdfReader = null;
 	}
 

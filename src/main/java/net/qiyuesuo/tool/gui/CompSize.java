@@ -1,5 +1,7 @@
 package net.qiyuesuo.tool.gui;
 
+import java.awt.Color;
+
 public class CompSize {
 	public static int MAIN_FRAME_WIDTH =1600;
 	public static int MAIN_FRAME_HEIGHT =900;
@@ -26,4 +28,11 @@ public class CompSize {
 	public static int SEARCH_FORM_HEIGHT =300;
 	
 	
+	public static int SEARCH_POSITION_HEIGHT =MAIN_FRAME_HEIGHT -SEARCH_FORM_HEIGHT-30;
+	
+	public static Color BASE_COLOR_DARK_TRANPARENT = new Color(255, 0, 0,100);
+	
+	public static Color BASE_COLOR_DARK = new Color(191, 217, 211);
+	
+	public static Color BASE_COLOR_LIGHT = new Color(98, 162, 147);
 }

@@ -1,6 +1,5 @@
 package net.qiyuesuo.tool.gui;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -41,7 +40,6 @@ public class CenterPanel extends JPanel implements BasePanel {
 		super();
 		this.comContext = comContext;
 		this.comContext.setCenterPanel(this);
-		this.setBackground(Color.GREEN);
 
 		new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, new PdfDropTargetListener(this));
 	}
@@ -75,7 +73,7 @@ public class CenterPanel extends JPanel implements BasePanel {
 				if (v.getBufferedImage() != null) {
 					v.setVisible(true);
 				} else {
-					BufferedImage image = ImageUtil.getImage(SearchFormPanel.getPdfBytes(), page);
+					BufferedImage image = ImageUtil.getImage(SearchPanel.getPdfBytes(), page);
 					v.setBufferedImage(image);
 					v.reSize();
 				}
@@ -155,7 +153,7 @@ public class CenterPanel extends JPanel implements BasePanel {
 						File f = (File) iterator.next();
 						if (f.getName() != null && f.getName().toLowerCase().endsWith("pdf")) {
 							System.out.println(f.getAbsolutePath());
-							SearchFormPanel searchFormPanel = centerPanel.getComContext().getSearchFormPanel();
+							SearchPanel searchFormPanel = centerPanel.getComContext().getSearchPanel();
 							searchFormPanel.paintPdfImage(f.getAbsolutePath());
 							break;
 						} else {

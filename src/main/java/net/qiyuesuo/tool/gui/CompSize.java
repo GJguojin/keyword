@@ -30,7 +30,8 @@ public class CompSize {
 	
 	public static int SEARCH_POSITION_HEIGHT =MAIN_FRAME_HEIGHT -SEARCH_FORM_HEIGHT-30;
 	
-	public static Color BASE_COLOR_DARK_TRANPARENT = new Color(255, 0, 0,100);
+	public static Color BASE_COLOR_RED_TRANPARENT = new Color(255, 0, 0,100);
+	public static Color BASE_COLOR_GREEN_TRANPARENT = new Color(0, 255, 0,100);
 	
 	public static Color BASE_COLOR_DARK = new Color(191, 217, 211);
 	

@@ -28,7 +28,7 @@ public class PdfTextPanel extends JTextPane {
 		this.setFont(new Font(null, Font.PLAIN, 18));
 		this.setEditable(false);
 		highlighter = new DefaultHighlighter();
-		highlightPainter = new DefaultHighlightPainter(CompSize.BASE_COLOR_DARK_TRANPARENT);
+		highlightPainter = new DefaultHighlightPainter(CompSize.BASE_COLOR_RED_TRANPARENT);
 		this.setHighlighter(highlighter);
 
 		Map<String, ArrayList<KeywordPosition>> positionMap = comContext.getCenterPanel().getPositionMap();

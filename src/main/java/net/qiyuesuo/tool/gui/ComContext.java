@@ -10,8 +10,6 @@ public class ComContext {
 	
 	private EastPanle eastPanle;
 	
-	private ImgPanel imgPanel;
-	
 	private SearchPanel searchPanel;
 	
 	private JScrollPane centerScrollPane;
@@ -40,14 +38,6 @@ public class ComContext {
 
 	public void setEastPanle(EastPanle eastPanle) {
 		this.eastPanle = eastPanle;
-	}
-
-	public ImgPanel getImgPanel() {
-		return imgPanel;
-	}
-
-	public void setImgPanel(ImgPanel imgPanel) {
-		this.imgPanel = imgPanel;
 	}
 
 

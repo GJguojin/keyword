@@ -1,6 +1,7 @@
 package net.qiyuesuo.tool.gui;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
@@ -43,7 +44,7 @@ public class CenterPanel extends JPanel implements BasePanel {
 
 		new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, new PdfDropTargetListener(this));
 	}
-
+	
 	public void paintImage(Map<Integer, BufferedImage> imageMap) {
 		for (ImgPanel imgPanle : images.values()) {
 			this.remove(imgPanle);
@@ -59,7 +60,7 @@ public class CenterPanel extends JPanel implements BasePanel {
 		this.getComContext().getCenterScrollPane().validate();
 
 		images.forEach((k, v) -> {
-			v.paintPosition();
+			v.paintPosition(null);
 		});
 	}
 
@@ -92,9 +93,28 @@ public class CenterPanel extends JPanel implements BasePanel {
 		}
 		
 		images.forEach((k,v)->{
-			v.paintPosition();
+			v.paintPosition(null);
 		});
 		
+	}
+	
+	public int getRealHeight(String tableKey) {
+		int page = Integer.parseInt(tableKey.split("#")[0]);
+		int height = 0;
+		for (ImgPanel imgPanel : images.values()) {
+			if (imgPanel.isViewable() && imgPanel.getPage() < page) {
+				height += imgPanel.getRealHeight();
+			}
+		}
+		
+		ImgPanel imgPanel = images.get(page);
+		JPanel positionPanel = imgPanel.getPositionPanel(tableKey);
+		if(positionPanel != null) {
+			Rectangle bounds = positionPanel.getBounds();
+			double y = bounds.getY();
+			height += y - CompSize.MAIN_FRAME_HEIGHT/2 +50;
+		}
+		return height;
 	}
 
 	private int getRealHeight() {
@@ -172,6 +192,14 @@ public class CenterPanel extends JPanel implements BasePanel {
 				ufe.printStackTrace();
 			}
 		}
+	}
+	
+	public ImgPanel getImgPanel(Integer page) {
+		return images.get(page);
+	}
+	
+	public Map<Integer, ImgPanel> getImgPanels() {
+		return images;
 	}
 	
 	public Map<String, ArrayList<KeywordPosition>> getPositionMap() {

@@ -4,13 +4,17 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -30,10 +34,12 @@ public class PositionPanel extends JTabbedPane {
 
 	private static ComContext comContext;
 
+	private static Map<String, JTable> tableMap = new HashMap<>();
+
 	public PositionPanel(ComContext comContext) {
 		super();
 		setComContext(comContext);
-		this.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH -5, CompSize.SEARCH_POSITION_HEIGHT));
+		this.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH - 5, CompSize.SEARCH_POSITION_HEIGHT));
 		this.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 	}
 
@@ -41,6 +47,7 @@ public class PositionPanel extends JTabbedPane {
 		Map<String, ArrayList<KeywordPosition>> positionMap = comContext.getCenterPanel().getPositionMap();
 		Set<String> keywords = positionMap.keySet();
 		this.removeAll();
+		tableMap.clear();
 		for (String keyword : keywords) {
 			this.addTab(keyword, keywordPanel(keyword));
 		}
@@ -50,7 +57,7 @@ public class PositionPanel extends JTabbedPane {
 		JPanel keywordPanel = new JPanel();
 		// 设置BorderLayout布局方式
 		keywordPanel.setLayout(new BorderLayout());
-		keywordPanel.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH-5, CompSize.SEARCH_POSITION_HEIGHT));
+		keywordPanel.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH - 5, CompSize.SEARCH_POSITION_HEIGHT));
 		// 创建表格
 		JTable table = configTable(keyword);
 		JScrollPane scrollPane = new JScrollPane(table);
@@ -65,30 +72,32 @@ public class PositionPanel extends JTabbedPane {
 	private static JTable configTable(String keyword) {
 		// 创建 table
 		JTable table = new JTable();
+		tableMap.put(keyword, table);
 		// 一次只能选择一项
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		// 获取 model
 		DefaultTableModel model = getTableModel(keyword);
 		table.setModel(model);
-		
+
 		DefaultTableCellRenderer tableRenderer = new DefaultTableCellRenderer() {
 			/** serialVersionUID */
 			private static final long serialVersionUID = 1L;
+
 			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			public Component getTableCellRendererComponent(JTable table1, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 				if (row % 2 == 0) {
 					setBackground(CompSize.BASE_COLOR_DARK);
 				} else {
 					setBackground(new Color(255, 255, 255));
 				}
 				setHorizontalAlignment(JLabel.CENTER);// 表格内容居中
-				((DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer()).setHorizontalAlignment(DefaultTableCellRenderer.CENTER);// 列头内容居中
+				((DefaultTableCellRenderer) table1.getTableHeader().getDefaultRenderer()).setHorizontalAlignment(DefaultTableCellRenderer.CENTER);// 列头内容居中
 //				table.getTableHeader().setFont(new Font("微软雅黑", Font.PLAIN, 13));
-				table.getTableHeader().setResizingAllowed(true);
-				table.setRowHeight(26);// 设置行高
+				table1.getTableHeader().setResizingAllowed(true);
+				table1.setRowHeight(26);// 设置行高
 
-				return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				return super.getTableCellRendererComponent(table1, value, isSelected, hasFocus, row, column);
 			}
 		};
 
@@ -100,23 +109,53 @@ public class PositionPanel extends JTabbedPane {
 		DefaultTableCellRenderer headRenderer = new DefaultTableCellRenderer();
 		headRenderer.setHorizontalAlignment(JLabel.CENTER);
 		headRenderer.setBackground(CompSize.BASE_COLOR_LIGHT);
-		
-		
+
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			TableColumn col = table.getColumn(table.getColumnName(i));
-			if(i == 0) {
+			if (i == 0) {
 				col.setPreferredWidth(40);
 			}
 			col.setCellRenderer(tableRenderer);
 			col.setHeaderRenderer(headRenderer);
 		}
-		
-		table.removeColumn(table.getColumnModel().getColumn(5));
+		hideColumn(table,5);
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int selectedRow = table.getSelectedRow();
+				if (selectedRow == -1) {
+					return;
+				}
+				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
+					String tableKey = (String) table.getValueAt(selectedRow, 5);
+					CenterPanel centerPanel = comContext.getCenterPanel();
+					Map<Integer, ImgPanel> imgPanels = centerPanel.getImgPanels();
+					imgPanels.forEach((k,v)->{
+						v.paintPosition(tableKey);
+					});
+					
+					JScrollPane js = comContext.getCenterScrollPane();
+					JScrollBar jsVB = js.getVerticalScrollBar();
+					jsVB.setValue(centerPanel.getRealHeight(tableKey));
+				}
+			}
+		});
 		return table;
 	}
 
+	private static void hideColumn(JTable table, int index) {
+		TableColumn tc = table.getColumnModel().getColumn(index);
+		tc.setMaxWidth(0);
+		tc.setPreferredWidth(0);
+		tc.setWidth(0);
+		tc.setMinWidth(0);
+
+		table.getTableHeader().getColumnModel().getColumn(index).setMaxWidth(0);
+		table.getTableHeader().getColumnModel().getColumn(index).setMinWidth(0);
+	}
+
 	private static DefaultTableModel getTableModel(String keyword) {
-		Object[] columnNames = { "页数", "x占比", "y占比", "x长度", "y长度","key"};
+		Object[] columnNames = { "页数", "x占比", "y占比", "x长度", "y长度", "key" };
 		Map<String, ArrayList<KeywordPosition>> positionMap = comContext.getCenterPanel().getPositionMap();
 		ArrayList<KeywordPosition> positions = positionMap.get(keyword);
 		int rowCount = positions.size();
@@ -151,6 +190,10 @@ public class PositionPanel extends JTabbedPane {
 		}
 		DefaultTableModel defaultTableModel = new DefaultTableModel(rowData, columnNames);
 		return defaultTableModel;
+	}
+
+	public JTable getTable(String keyword) {
+		return tableMap.get(keyword);
 	}
 
 	public static ComContext getComContext() {

@@ -6,7 +6,10 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -15,6 +18,7 @@ import java.util.stream.Collectors;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 
 import net.qiyuesuo.tool.position.KeywordPosition;
 import net.qiyuesuo.tool.utils.PositionUtil;
@@ -87,8 +91,8 @@ public class ImgPanel extends JPanel {
 		g.drawImage(bufferedImage, 0, 0, realWidth, realHeight, null);
 		printPage(g);
 	}
-
-	public void paintPosition() {
+	
+	public void paintPosition(String tableKey) {
 		positionPanels.forEach((k,v) -> {
 			this.remove(v);
 		});
@@ -100,16 +104,99 @@ public class ImgPanel extends JPanel {
 
 		int rectWidth = 100;
 		int rectHeight = 30;
-		List<KeywordPosition> positions = comContext.getCenterPanel().getPositions().stream().filter(p -> p.getPage() == page)
-				.collect(Collectors.toList());
-		for (KeywordPosition position : positions) {
-			JPanel jpanel = new JPanel();
-			positionPanels.put(PositionUtil.getKey(position),jpanel);
-			jpanel.setBackground(CompSize.BASE_COLOR_DARK_TRANPARENT);
-			jpanel.setBounds((int) (realWidth * position.getX()), (int) (realHeight * (1 - position.getY()) - rectHeight), rectWidth, rectHeight);
-			this.add(jpanel);
-		}
+		Map<String, ArrayList<KeywordPosition>> positionMap = comContext.getCenterPanel().getPositionMap();
+		positionMap.forEach((k,ps)->{
+			List<KeywordPosition> positions = ps.stream().filter(p -> p.getPage() == page).collect(Collectors.toList());
+			for (KeywordPosition position : positions) {
+				JPanel jpanel = new JPanel();
+				String key = PositionUtil.getKey(position);
+				positionPanels.put(key,jpanel);
+				if(key.equals(tableKey)) {
+					jpanel.setBackground(CompSize.BASE_COLOR_GREEN_TRANPARENT);
+				}else {
+					jpanel.setBackground(CompSize.BASE_COLOR_RED_TRANPARENT);
+				}
+				jpanel.setBounds((int) (realWidth * position.getX()), (int) (realHeight * (1 - position.getY()) - rectHeight), rectWidth, rectHeight);
+				jpanel.addMouseListener(new PositionMouseListener(k,key,comContext));
+				this.add(jpanel);
+			}
+		});
+		
+		
 		this.repaint();
+	}
+	
+	static class PositionMouseListener implements MouseListener{
+		
+		private String keyword;
+		private String key;
+		private ComContext comContext;
+		public PositionMouseListener(String keyword,String key,ComContext comContext) {
+			super();
+			this.key = key;
+			this.keyword = keyword;
+			this.comContext = comContext;
+		}
+		
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if(e.getClickCount() == 1) {
+				PositionPanel panel = comContext.getPositionPanel();
+				JTable table = panel.getTable(keyword);
+				if(table == null) {
+					return;
+				}
+				int rowCount = table.getRowCount();
+				String tableKey = null;
+				for(int i =0;i<rowCount;i++) {
+					tableKey = (String) table.getValueAt(i, 5);
+					if(key.equals(tableKey)) {
+						table.setRowSelectionInterval(i,i);
+						break;
+					}
+				}
+				if(tableKey != null) {
+					CenterPanel centerPanel = comContext.getCenterPanel();
+					Map<Integer, ImgPanel> imgPanels = centerPanel.getImgPanels();
+					for(ImgPanel img : imgPanels.values()) {
+						img.paintPosition(tableKey);
+					}
+				}
+			}
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {}
+		@Override
+		public void mouseEntered(MouseEvent e) {}
+		@Override
+		public void mouseExited(MouseEvent e) {}
+		
+		public String getKey() {
+			return key;
+		}
+		public void setKey(String key) {
+			this.key = key;
+		}
+
+		public String getKeyword() {
+			return keyword;
+		}
+
+		public void setKeyword(String keyword) {
+			this.keyword = keyword;
+		}
+
+		public ComContext getComContext() {
+			return comContext;
+		}
+
+		public void setComContext(ComContext comContext) {
+			this.comContext = comContext;
+		}
 	}
 
 	private void printPage(Graphics g) {
@@ -127,6 +214,11 @@ public class ImgPanel extends JPanel {
 	public boolean isViewable() {
 		return bufferedImage != null && this.isVisible();
 	}
+	
+	public JPanel getPositionPanel(String tableKey) {
+		return positionPanels.get(tableKey);
+	}
+	
 
 	public int getPage() {
 		return page;

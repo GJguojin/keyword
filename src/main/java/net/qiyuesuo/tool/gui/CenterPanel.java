@@ -172,7 +172,7 @@ public class CenterPanel extends JPanel implements BasePanel {
 					while (iterator.hasNext()) {
 						File f = (File) iterator.next();
 						if (f.getName() != null && f.getName().toLowerCase().endsWith("pdf")) {
-							System.out.println(f.getAbsolutePath());
+//							System.out.println(f.getAbsolutePath());
 							SearchPanel searchFormPanel = centerPanel.getComContext().getSearchPanel();
 							searchFormPanel.paintPdfImage(f.getAbsolutePath());
 							break;

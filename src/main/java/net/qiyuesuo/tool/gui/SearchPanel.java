@@ -347,7 +347,7 @@ public class SearchPanel extends JPanel implements BasePanel {
 		keywordPanel.add(getBaseLabel("关键字："));
 
 		keywordField = new JTextField();
-		keywordField.setText("合同");
+//		keywordField.setText("合同");
 		keywordField.setPreferredSize(new Dimension(CompSize.PDF_PATH_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
 		keywordPanel.add(keywordField);
 		keywordField.setToolTipText("多个关键字用‘,’隔开");
@@ -404,6 +404,7 @@ public class SearchPanel extends JPanel implements BasePanel {
 		}
 		PdfTextUtil.clear();
 		PdfTextUtil.readPdf(pdfBytes,searchOptions.getPage(), searchOptions.getPageEnd());
+		comContext.getPositionPanel().paintPosition();
 		Map<Integer, BufferedImage> images = ImageUtil.getImages(pdfBytes, searchOptions.getPage(), searchOptions.getPageEnd());
 		this.comContext.getCenterPanel().paintImage(images);
 		String endText = endField.getText();

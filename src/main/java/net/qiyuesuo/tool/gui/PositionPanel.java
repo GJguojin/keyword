@@ -49,7 +49,7 @@ public class PositionPanel extends JTabbedPane {
 		this.removeAll();
 		tableMap.clear();
 		for (String keyword : keywords) {
-			this.addTab(keyword, keywordPanel(keyword));
+			this.addTab(keyword+"("+positionMap.get(keyword).size()+")", keywordPanel(keyword));
 		}
 	}
 

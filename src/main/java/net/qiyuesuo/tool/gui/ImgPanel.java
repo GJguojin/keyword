@@ -142,6 +142,8 @@ public class ImgPanel extends JPanel {
 		public void mouseClicked(MouseEvent e) {
 			if(e.getClickCount() == 1) {
 				PositionPanel panel = comContext.getPositionPanel();
+				panel.setSelectedComponent(panel.getPanel(keyword));
+				
 				JTable table = panel.getTable(keyword);
 				if(table == null) {
 					return;

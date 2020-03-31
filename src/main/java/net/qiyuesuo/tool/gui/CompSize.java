@@ -33,7 +33,10 @@ public class CompSize {
 	public static Color BASE_COLOR_RED_TRANPARENT = new Color(255, 0, 0,100);
 	public static Color BASE_COLOR_GREEN_TRANPARENT = new Color(0, 255, 0,100);
 	
-	public static Color BASE_COLOR_DARK = new Color(191, 217, 211);
+	public static Color BASE_COLOR_DARK = new Color(238, 238, 238);
 	
-	public static Color BASE_COLOR_LIGHT = new Color(98, 162, 147);
+	public static Color BASE_COLOR_TABLE_HEAD = new Color(215, 215, 215);
+	
+	public static Color BASE_COLOR_TABLE_SELECTED = new Color(190, 190, 190);
+
 }

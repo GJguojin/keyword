@@ -35,6 +35,10 @@ public class PositionPanel extends JTabbedPane {
 	private static ComContext comContext;
 
 	private static Map<String, JTable> tableMap = new HashMap<>();
+	
+	private static Map<String, JPanel> panelMap = new HashMap<>();
+	
+	
 
 	public PositionPanel(ComContext comContext) {
 		super();
@@ -42,14 +46,19 @@ public class PositionPanel extends JTabbedPane {
 		this.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH - 5, CompSize.SEARCH_POSITION_HEIGHT));
 		this.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 	}
+	
+	
 
 	public void paintPosition() {
 		Map<String, ArrayList<KeywordPosition>> positionMap = comContext.getCenterPanel().getPositionMap();
 		Set<String> keywords = positionMap.keySet();
 		this.removeAll();
 		tableMap.clear();
+		panelMap.clear();
 		for (String keyword : keywords) {
-			this.addTab(keyword+"("+positionMap.get(keyword).size()+")", keywordPanel(keyword));
+			JPanel keywordPanel = keywordPanel(keyword);
+			panelMap.put(keyword, keywordPanel);
+			this.addTab(keyword+"("+positionMap.get(keyword).size()+")", keywordPanel);
 		}
 	}
 
@@ -75,6 +84,7 @@ public class PositionPanel extends JTabbedPane {
 		tableMap.put(keyword, table);
 		// 一次只能选择一项
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setSelectionBackground(CompSize.BASE_COLOR_TABLE_SELECTED);
 
 		// 获取 model
 		DefaultTableModel model = getTableModel(keyword);
@@ -108,7 +118,7 @@ public class PositionPanel extends JTabbedPane {
 		tableHeader.setPreferredSize(size);
 		DefaultTableCellRenderer headRenderer = new DefaultTableCellRenderer();
 		headRenderer.setHorizontalAlignment(JLabel.CENTER);
-		headRenderer.setBackground(CompSize.BASE_COLOR_LIGHT);
+		headRenderer.setBackground(CompSize.BASE_COLOR_TABLE_HEAD);
 
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			TableColumn col = table.getColumn(table.getColumnName(i));
@@ -190,6 +200,10 @@ public class PositionPanel extends JTabbedPane {
 		}
 		DefaultTableModel defaultTableModel = new DefaultTableModel(rowData, columnNames);
 		return defaultTableModel;
+	}
+	
+	public JPanel getPanel(String keyword) {
+		return panelMap.get(keyword);
 	}
 
 	public JTable getTable(String keyword) {

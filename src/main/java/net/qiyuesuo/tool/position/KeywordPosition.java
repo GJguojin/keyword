@@ -10,6 +10,8 @@ public class KeywordPosition {
 	private double y;				// y坐标占比(相对于左下角)
 	private double coordinateX;     // x坐标(相对于左下角)
 	private double coordinateY;     // y坐标(相对于左下角)
+	private double height = 841.92; //宽
+	private double width = 595.32;  //高
 	
 	public KeywordPosition() {
 		super();
@@ -21,6 +23,8 @@ public class KeywordPosition {
 		this.y = position.getY();
 		this.coordinateX = position.getCoordinateX();
 		this.coordinateY = position.getCoordinateY(); 
+		this.width = position.getWidth();
+		this.height = position.getHeight();
 	}
 	
 	public int getPage() {
@@ -54,5 +58,20 @@ public class KeywordPosition {
 		this.coordinateY = coordinateY;
 	}
 
+	public double getHeight() {
+		return height;
+	}
+
+	public void setHeight(double height) {
+		this.height = height;
+	}
+
+	public double getWidth() {
+		return width;
+	}
+
+	public void setWidth(double width) {
+		this.width = width;
+	}
 	
 }

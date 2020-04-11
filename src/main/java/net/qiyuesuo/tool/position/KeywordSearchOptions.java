@@ -18,16 +18,23 @@ public class KeywordSearchOptions {
 	
 	public enum PositionType{
 		LEFT_TOP,     //左上
+		LEFT_CENTER,//左中
 		LEFT_BOTTOM,  //左下
+		
 		RIGHT_TOP,    //右上
-		RIGHT_BOTTOM;  //右下
+		RIGHT_CENTER,//右中
+		RIGHT_BOTTOM,  //右下
+		
+		TOP_CENTER,//上中
+		CENTER_CENTER,
+		BOTTOM_CENTER;//下中
 		
 		boolean isLeft() {
-			return this == LEFT_TOP || this == LEFT_BOTTOM;
+			return this == LEFT_TOP || this == LEFT_BOTTOM || this == LEFT_CENTER;
 		}
 		
 		boolean isTop() {
-			return this == LEFT_TOP || this == RIGHT_TOP;
+			return this == LEFT_TOP || this == RIGHT_TOP || this == TOP_CENTER;
 		}
 	}
 	

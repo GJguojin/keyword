@@ -108,6 +108,7 @@ public class SearchPanel extends JPanel implements BasePanel {
 
 		searchButton.addActionListener((e) -> {
 			if (pdfBytes == null || pdfBytes.length == 0) {
+//				paintPdfImage("C:\\Users\\gj\\Desktop\\test_rotate.pdf");
 				JOptionPane.showMessageDialog(comContext.getMainFrame(), "请先选择文件");
 				return;
 			}
@@ -211,17 +212,32 @@ public class SearchPanel extends JPanel implements BasePanel {
 	}
 
 	private JPanel positionPanel() {
-		JPanel positionPanel = getBasePanel();
-		positionPanel.add(getBaseLabel("位置："));
+		JPanel positionPanel = new JPanel();
+		positionPanel.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT * 3));
+		FlowLayout f = (FlowLayout) positionPanel.getLayout();
+		f.setHgap(0);// 水平间距
+		f.setVgap(0);
 
+		positionPanel.add(getBaseLabel("位置："));
 		positionGroup = new ButtonGroup();
 		positionPanel.add(getJRadioButton("左上", PositionType.LEFT_TOP, positionGroup));
+		positionPanel.add(getJRadioButton("左中", PositionType.LEFT_CENTER, positionGroup));
 		JRadioButton ld = getJRadioButton("左下", PositionType.LEFT_BOTTOM, positionGroup);
 		positionPanel.add(ld);
+		ld.setSelected(true);
+		
+		positionPanel.add(getBaseLabel(""));
+		positionPanel.add(getJRadioButton("中上", PositionType.TOP_CENTER, positionGroup));
+		positionPanel.add(getJRadioButton("中中", PositionType.CENTER_CENTER, positionGroup));
+		positionPanel.add(getJRadioButton("中下", PositionType.BOTTOM_CENTER, positionGroup));
+		
+		positionPanel.add(getBaseLabel(""));
 		positionPanel.add(getJRadioButton("右上", PositionType.RIGHT_TOP, positionGroup));
+		positionPanel.add(getJRadioButton("右中", PositionType.RIGHT_CENTER, positionGroup));
 		positionPanel.add(getJRadioButton("右下", PositionType.RIGHT_BOTTOM, positionGroup));
 
-		ld.setSelected(true);
+
+		
 		return positionPanel;
 	}
 
@@ -229,7 +245,7 @@ public class SearchPanel extends JPanel implements BasePanel {
 		JRadioButton jrb = new JRadioButton(title);
 		jrb.setName(positionType.name());
 		bg.add(jrb);
-		jrb.setPreferredSize(new Dimension(CompSize.PDF_PATH_FIELD_WIDTH / 4, CompSize.BASE_FORM_PANEL_HEIGHT));
+		jrb.setPreferredSize(new Dimension(CompSize.PDF_PATH_FIELD_WIDTH / 3, CompSize.BASE_FORM_PANEL_HEIGHT));
 		return jrb;
 	}
 
@@ -347,7 +363,7 @@ public class SearchPanel extends JPanel implements BasePanel {
 		keywordPanel.add(getBaseLabel("关键字："));
 
 		keywordField = new JTextField();
-//		keywordField.setText("合同");
+//		keywordField.setText("关键字");
 		keywordField.setPreferredSize(new Dimension(CompSize.PDF_PATH_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
 		keywordPanel.add(keywordField);
 		keywordField.setToolTipText("多个关键字用‘,’隔开");

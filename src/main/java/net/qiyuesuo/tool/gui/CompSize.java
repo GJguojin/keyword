@@ -25,7 +25,7 @@ public class CompSize {
 	public static int PAGE_FIELD_WIDTH =35;
 	
 	
-	public static int SEARCH_FORM_HEIGHT =300;
+	public static int SEARCH_FORM_HEIGHT =350;
 	
 	
 	public static int SEARCH_POSITION_HEIGHT =MAIN_FRAME_HEIGHT -SEARCH_FORM_HEIGHT-30;

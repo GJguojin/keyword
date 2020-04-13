@@ -344,25 +344,12 @@ public class PdfKeywordUtils {
 				if (Math.abs(keyIndex) > positions.size()) {
 					positions.clear();
 				} else {
+					ResultPosition position = null;
 					if (keyIndex < 0) {
-						// 先排序
-						// TODO 负数排序
-						/*Collections.sort(positions, new Comparator<KeywordPosition>() {
-							@Override
-							public int compare(KeywordPosition p1, KeywordPosition p2) {
-								int result = p2.getPage()-p1.getPage();
-								if(result == 0) {
-									if(Math.abs(p1.getY()-p2.getY()) <= DEF_SAME_LINE) {
-										result = Math.abs(p1.getX()-p2.getX()) <= DEF_SAME_LINE?0: p1.getX()-p2.getX()>0?-1:1;
-									}else {
-										result = p1.getY()-p2.getY()>0?1:-1;
-									}
-								}
-								return result;
-							}
-						});*/
+						position = positions.get(positions.size()+keyIndex);
+					}else {
+						position = positions.get(Math.abs(keyIndex) - 1);
 					}
-					ResultPosition position = positions.get(Math.abs(keyIndex) - 1);
 					positions.clear();
 					positions.add(position);
 				}

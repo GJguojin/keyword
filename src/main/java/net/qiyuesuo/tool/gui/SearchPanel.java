@@ -5,6 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
@@ -121,6 +123,7 @@ public class SearchPanel extends JPanel implements BasePanel {
 			handleSearchOptions();
 			try {
 				PdfTextUtil.readPdf(pdfBytes,searchOptions.getPage(), searchOptions.getPageEnd());
+				searchOptions.setOtherPosition(new HashSet(Arrays.asList(PositionType.values())));
 				Map<String, ArrayList<KeywordPosition>> keywordMap = PdfKeywordUtils.queryKeyword(pdfBytes, searchOptions);
 				comContext.getCenterPanel().setPositionMap(keywordMap);
 				List<KeywordPosition> positions = comContext.getCenterPanel().getPositions();
@@ -236,8 +239,6 @@ public class SearchPanel extends JPanel implements BasePanel {
 		positionPanel.add(getJRadioButton("右中", PositionType.RIGHT_CENTER, positionGroup));
 		positionPanel.add(getJRadioButton("右下", PositionType.RIGHT_BOTTOM, positionGroup));
 
-
-		
 		return positionPanel;
 	}
 
@@ -246,6 +247,35 @@ public class SearchPanel extends JPanel implements BasePanel {
 		jrb.setName(positionType.name());
 		bg.add(jrb);
 		jrb.setPreferredSize(new Dimension(CompSize.PDF_PATH_FIELD_WIDTH / 3, CompSize.BASE_FORM_PANEL_HEIGHT));
+		jrb.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					JRadioButton source = (JRadioButton) e.getSource();
+					if(source.isSelected()) {
+						try {
+							CenterPanel centerPanel = comContext.getCenterPanel();
+							Map<String, ArrayList<KeywordPosition>> positionMap = centerPanel.getPositionMap();
+							if(positionMap.size() > 0) {
+								positionMap.forEach((k,v)->{
+									ArrayList<KeywordPosition> newPs =new ArrayList<>();
+									v.forEach(ps ->{
+										KeywordPosition otherPosition = ps.getOtherPosition(positionType);
+										otherPosition.setOtherPositions(ps.getOtherPositions());
+										newPs.add(otherPosition);
+									});
+									positionMap.replace(k, newPs);
+								});
+								comContext.getCenterPanel().setPositionMap(positionMap);
+								List<KeywordPosition> positions = comContext.getCenterPanel().getPositions();
+								comContext.getCenterPanel().paintPositions(positions, searchOptions);
+								comContext.getPositionPanel().paintPosition();
+							}
+						} catch (Exception e1) {
+						}
+					}
+				}
+				
+			});
 		return jrb;
 	}
 

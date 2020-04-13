@@ -10,6 +10,7 @@ public class KeywordSearchOptions {
 	private int page = 0;               //搜索页数开始 0:表示全部,其他表示相应的页数
 	private int pageEnd;                //搜索页数结束
 	PositionType position = PositionType.RIGHT_BOTTOM; //位置信息
+	Set<PositionType> otherPosition;
 	private int keyIndex=0;             //第几个关键字 0:全部 -1:最后一个 其他:第keyIndex个  
 	private boolean ignoreContentSpace = true; //忽略文档空格
 	private boolean ignoreKeywordSpace = true; //忽略文档空格
@@ -112,5 +113,12 @@ public class KeywordSearchOptions {
 	public void setPosition(PositionType position) {
 		this.position = position;
 	}
-	
+
+	public Set<PositionType> getOtherPosition() {
+		return otherPosition;
+	}
+
+	public void setOtherPosition(Set<PositionType> otherPosition) {
+		this.otherPosition = otherPosition;
+	}
 }

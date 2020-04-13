@@ -433,7 +433,18 @@ public class PdfKeywordUtils {
 
 		public KeywordPosition convert(KeywordSearchOptions options) {
 			PositionType positionType = options.getPosition();
-
+			Position position = calc(positionType);
+			KeywordPosition keywordPosition = new KeywordPosition(position,positionType);
+			Set<PositionType> otherPosition = options.getOtherPosition();
+			if(otherPosition != null) {
+				otherPosition.forEach(o ->{
+					keywordPosition.putOtherPosition(o, new KeywordPosition(calc(o),o));
+				});
+			}
+			return keywordPosition;
+		}
+		
+		private Position calc(PositionType positionType) {
 			Position position = null;
 			switch (positionType) {
 			case LEFT_TOP:
@@ -482,7 +493,7 @@ public class PdfKeywordUtils {
 			default:
 				break;
 			}
-			return new KeywordPosition(position);
+			return position;
 		}
 
 		public Position calcCenter(Position position, Position aP, Position bP,boolean check) {

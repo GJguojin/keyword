@@ -1,5 +1,10 @@
 package net.qiyuesuo.tool.position;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import net.qiyuesuo.tool.position.KeywordSearchOptions.PositionType;
+
 /**
  * 签名位置
  */
@@ -12,11 +17,13 @@ public class KeywordPosition {
 	private double coordinateY;     // y坐标(相对于左下角)
 	private double height = 841.92; //宽
 	private double width = 595.32;  //高
+	private PositionType positionType;
+	private Map<PositionType,KeywordPosition> otherPositions = new HashMap<>();
 	
 	public KeywordPosition() {
 		super();
 	}
-
+	
 	public KeywordPosition(KeywordPosition position) {
 		this.page = position.getPage();
 		this.x = position.getX();
@@ -25,6 +32,25 @@ public class KeywordPosition {
 		this.coordinateY = position.getCoordinateY(); 
 		this.width = position.getWidth();
 		this.height = position.getHeight();
+	}
+
+	public KeywordPosition(KeywordPosition position,PositionType positionType) {
+		this(position);
+		this.positionType = positionType;
+	}
+	
+	public KeywordPosition getOtherPosition(PositionType otherPositionType) {
+		if(positionType == null) {
+			return null;
+		}
+		return otherPositions.get(otherPositionType);
+	}
+	
+	public void putOtherPosition(PositionType otherPositionType,KeywordPosition otherPosition) {
+		if(otherPositionType == null || otherPosition == null) {
+			return;
+		}
+		otherPositions.put(otherPositionType, otherPosition);
 	}
 	
 	public int getPage() {
@@ -72,6 +98,22 @@ public class KeywordPosition {
 
 	public void setWidth(double width) {
 		this.width = width;
+	}
+
+	public PositionType getPositionType() {
+		return positionType;
+	}
+
+	public void setPositionType(PositionType positionType) {
+		this.positionType = positionType;
+	}
+
+	public Map<PositionType, KeywordPosition> getOtherPositions() {
+		return otherPositions;
+	}
+
+	public void setOtherPositions(Map<PositionType, KeywordPosition> otherPositions) {
+		this.otherPositions = otherPositions;
 	}
 	
 }

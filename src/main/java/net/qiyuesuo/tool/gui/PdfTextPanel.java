@@ -1,5 +1,6 @@
 package net.qiyuesuo.tool.gui;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Map;
@@ -43,6 +44,11 @@ public class PdfTextPanel extends JTextPane {
 				index += wordlength;
 			}
 		});
+		double width = this.getPreferredSize().getWidth();
+		width = width <500?500:width > CompSize.CENTER_PANEL_WIDTH-100?CompSize.CENTER_PANEL_WIDTH-100:width+20;
+		double height = this.getPreferredSize().getHeight();
+		height = height < 300?300:height>600?600 :height;
+		this.setPreferredSize(new Dimension((int)width,(int) height));
 	}
 
 

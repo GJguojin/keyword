@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import net.qiyuesuo.tool.position.KeywordPosition;
@@ -59,7 +60,7 @@ public class ImgPanel extends JPanel {
 		jButton.setMargin(new Insets(0, 0, 0, 0));
 		jButton.addActionListener((e) -> {
 			PdfTextPanel pdfTextPanel = new PdfTextPanel(comContext,page);
-			JOptionPane.showMessageDialog(comContext.getMainFrame(), pdfTextPanel, "第" + page + "内容", -1);
+			JOptionPane.showMessageDialog(comContext.getCenterScrollPane(),new JScrollPane(pdfTextPanel) , "第" + page + "内容", -1);
 		});
 		return jButton;
 

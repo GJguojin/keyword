@@ -286,12 +286,12 @@ public class SearchPanel extends JPanel implements BasePanel {
 		JLabel label0 = new JLabel("从");
 		pagePanel.add(label0);
 
-		startField = getNumberTextField(false,1);
+		startField = getNumberTextField(true,1);
 		startField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
 		startField.setText("1");
 		startField.setHorizontalAlignment(SwingConstants.CENTER);
 		startField.addFocusListener(new SeachOptionFocusListener(this));
-		startField.addKeyListener(new VoteElectKeyListener(false, false));
+		startField.addKeyListener(new VoteElectKeyListener(true, false));
 		pagePanel.add(startField);
 
 		JLabel label1 = new JLabel("~");
@@ -299,12 +299,12 @@ public class SearchPanel extends JPanel implements BasePanel {
 		label1.setHorizontalAlignment(SwingConstants.CENTER);
 		pagePanel.add(label1);
 
-		endField = getNumberTextField(false,3);
+		endField = getNumberTextField(true,3);
 		endField.setText("3");
 		endField.setHorizontalAlignment(SwingConstants.CENTER);
 		endField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
 		endField.addFocusListener(new SeachOptionFocusListener(this));
-		endField.addKeyListener(new VoteElectKeyListener(false, false));
+		endField.addKeyListener(new VoteElectKeyListener(true, false));
 		pagePanel.add(endField);
 
 		JLabel label2 = new JLabel("页 共");
@@ -336,7 +336,7 @@ public class SearchPanel extends JPanel implements BasePanel {
 	
 	private JFormattedTextField getNumberTextField(boolean zeroable,int defValue) {
 		NumberFormat integerInstance = NumberFormat.getIntegerInstance();
-		if(! zeroable) {
+		if(!zeroable) {
 			integerInstance.setMaximumIntegerDigits(1);
 			integerInstance.setMinimumFractionDigits(0);
 		}

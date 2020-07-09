@@ -5,9 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
-import com.itextpdf.text.pdf.parser.TextMarginFinder;
-import com.itextpdf.text.pdf.parser.TextRenderInfo;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 
 public class PdfTextUtil {
 
@@ -15,11 +13,9 @@ public class PdfTextUtil {
 
 	private static PdfReader pdfReader;
 	
-	private static TextRenderInfo lastRender;
 
 	public static void clear() {
 		textMap.clear();
-		lastRender = null;
 		if(pdfReader != null) {
 			pdfReader.close();
 		}
@@ -31,20 +27,19 @@ public class PdfTextUtil {
 		if (buffer == null) {
 			return "";
 		}
-		return buffer.toString().replaceAll("(?m)^\\s*$(\\n|\\r\\n)", "");
+//		return buffer.toString().replaceAll("(?m)^\\s*$(\\n|\\r\\n)", "");
+		return buffer.toString();
 	}
 
 	public static void readPdf(byte[] pdfBtyes, int startPage, int endPage) {
 		for (int i = Math.min(startPage, endPage); i <= Math.max(startPage, endPage); i++) {
 			if (textMap.containsKey(i)) {
-				continue;
+//				continue;
 			}
 			try {
 				pdfReader = getPdfReader(pdfBtyes);
-				PdfReaderContentParser parser = new PdfReaderContentParser(pdfReader);
-				lastRender = null;
-				parser.processContent(i, new PdfTextMarginFinder(i));
-				lastRender = null;
+				String textFromPage = PdfTextExtractor.getTextFromPage(pdfReader, i);
+				textMap.put(i, new StringBuffer(textFromPage));
 			} catch (Exception e) {
 			} finally {
 				if (pdfReader != null) {
@@ -55,33 +50,6 @@ public class PdfTextUtil {
 		}
 	}
 	
-	static class PdfTextMarginFinder extends TextMarginFinder{
-		
-		private int page;
-		
-		public PdfTextMarginFinder(int page) {
-			super();
-			this.page = page;
-		}
-		@Override
-		public void renderText(TextRenderInfo renderInfo) {
-			StringBuffer buffer = textMap.get(page);
-			if (buffer == null) {
-				buffer = new StringBuffer();
-				textMap.put(page, buffer);
-			}
-			String text = renderInfo.getText();
-			if(text == null || "".equals(text)) {
-				return;
-			}
-			if(lastRender != null && lastRender.getDescentLine().getBoundingRectange().getY() > renderInfo.getAscentLine().getBoundingRectange().getY()) {
-				buffer.append("\n");
-			}
-			buffer.append(text);
-			lastRender = renderInfo;
-		}
-	}
-
 	private static PdfReader getPdfReader(byte[] pdfBtyes) throws IOException {
 		if (pdfReader != null) {
 			return pdfReader;

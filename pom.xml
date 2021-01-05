@@ -3,12 +3,6 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>net.qiyuesuo.framework</groupId>
-		<artifactId>qiyuesuo-parent</artifactId>
-		<version>2.2.0.RELEASE</version>
-	</parent>
-
 	<groupId>net.qiyuesuo.test</groupId>
 	<artifactId>keyword</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -21,6 +15,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -72,7 +70,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>net.qiyuesuo.tool.MainSearch</mainClass>
+							<mainClass>com.gj.tool.MainSearch</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -91,21 +89,19 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
+			<version>2.0.17</version>
 		</dependency>
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>itextpdf</artifactId>
+			<version>5.5.9</version>
 		</dependency>
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>itext-asian</artifactId>
+			<version>5.2.0</version>
 		</dependency>
 	</dependencies>
 

@@ -105,6 +105,9 @@ public class ImgPanel extends JPanel {
 
 		int rectWidth = 100;
 		int rectHeight = 30;
+		double offsetX = comContext.getSearchPanel().getOffsetX();
+		double offsetY = comContext.getSearchPanel().getOffsetY();
+		
 		Map<String, ArrayList<KeywordPosition>> positionMap = comContext.getCenterPanel().getPositionMap();
 		positionMap.forEach((k,ps)->{
 			List<KeywordPosition> positions = ps.stream().filter(p -> p.getPage() == page).collect(Collectors.toList());
@@ -117,7 +120,7 @@ public class ImgPanel extends JPanel {
 				}else {
 					jpanel.setBackground(CompSize.BASE_COLOR_RED_TRANPARENT);
 				}
-				jpanel.setBounds((int) (realWidth * position.getX()), (int) (realHeight * (1 - position.getY()) - rectHeight), rectWidth, rectHeight);
+				jpanel.setBounds((int) (realWidth * (position.getX()+offsetX)), (int) (realHeight * (1 - position.getY()-offsetY) - rectHeight), rectWidth, rectHeight);
 				jpanel.addMouseListener(new PositionMouseListener(k,key,comContext));
 				this.add(jpanel);
 			}

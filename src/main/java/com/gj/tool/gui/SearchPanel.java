@@ -38,8 +38,8 @@ import javax.swing.filechooser.FileFilter;
 
 import com.gj.tool.position.KeywordPosition;
 import com.gj.tool.position.KeywordSearchOptions;
-import com.gj.tool.position.PdfKeywordUtils;
 import com.gj.tool.position.KeywordSearchOptions.PositionType;
+import com.gj.tool.position.PdfKeywordUtils;
 import com.gj.tool.utils.ImageUtil;
 import com.gj.tool.utils.PdfTextUtil;
 
@@ -76,6 +76,10 @@ public class SearchPanel extends JPanel implements BasePanel {
 	private ComContext comContext;
 
 	private JTextField pdfPathField;
+	
+	private JTextField offsetXField;
+	
+	private JTextField offsetYField;
 
 	public SearchPanel(ComContext comContext) {
 		this.comContext = comContext;
@@ -106,7 +110,17 @@ public class SearchPanel extends JPanel implements BasePanel {
 		searchButton.setFocusPainted(false);
 		searchButton.setMargin(new Insets(0, 0, 0, 0));
 //		searchButton.setBorder(BorderFactory.createRaisedBevelBorder());
-		searchButton.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH - 30, CompSize.FILE_CHOORE_BUTTON_HEIGHT));
+		searchButton.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH/3 - 10, CompSize.FILE_CHOORE_BUTTON_HEIGHT));
+		
+		offsetXField  = new JTextField();
+		offsetXField.setToolTipText("x偏移量");
+		offsetXField.setText("0.0");
+		offsetXField.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH/3 - 10, CompSize.FILE_CHOORE_BUTTON_HEIGHT));
+		
+		offsetYField  = new JTextField();
+		offsetYField.setToolTipText("y偏移量");
+		offsetYField.setText("0.0");
+		offsetYField.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH/3 - 10, CompSize.FILE_CHOORE_BUTTON_HEIGHT));
 
 		searchButton.addActionListener((e) -> {
 			if (pdfBytes == null || pdfBytes.length == 0) {
@@ -136,6 +150,8 @@ public class SearchPanel extends JPanel implements BasePanel {
 				throw new RuntimeException(e1);
 			}
 		});
+		searchPanel.add(offsetXField);
+		searchPanel.add(offsetYField);
 		searchPanel.add(searchButton);
 
 		handleSearchOptions();
@@ -185,6 +201,7 @@ public class SearchPanel extends JPanel implements BasePanel {
 		searchOptions.setIgnoreNewpage(ipCheckBox.isSelected());
 
 	}
+	
 
 	private JPanel otherPanel() {
 		JPanel otherPanel = new JPanel();
@@ -503,6 +520,22 @@ public class SearchPanel extends JPanel implements BasePanel {
 			return "*.pdf(pdf文档)";
 		}
 	}
+	
+	public double getOffsetX() {
+		try {
+			return Double.parseDouble(offsetXField.getText());
+		} catch (Exception e) {
+		}
+		return 0;
+	}
+	
+	public double getOffsetY() {
+		try {
+			return Double.parseDouble(offsetYField.getText());
+		} catch (Exception e) {
+		}
+		return 0;
+	}
 
 	@Override
 	public ComContext getComContext() {
@@ -552,5 +585,5 @@ public class SearchPanel extends JPanel implements BasePanel {
 	public void setComContext(ComContext comContext) {
 		this.comContext = comContext;
 	}
-
+	
 }

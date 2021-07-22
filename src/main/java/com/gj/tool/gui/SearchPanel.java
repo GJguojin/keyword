@@ -312,7 +312,7 @@ public class SearchPanel extends JPanel implements BasePanel {
 		pagePanel.add(pageLabel);
 		
 		JPanel tempPanel = new JPanel();
-		tempPanel.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH-CompSize.BASE_LABEL_WIDTH-5,CompSize.BASE_FORM_PANEL_HEIGHT+10));
+		tempPanel.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH-CompSize.BASE_LABEL_WIDTH-10,CompSize.BASE_FORM_PANEL_HEIGHT+10));
 		FlowLayout f = (FlowLayout) tempPanel.getLayout();
 		f.setHgap(0);// 水平间距
 		pagePanel.add(tempPanel);

@@ -22,7 +22,7 @@ public class CompSize {
 	public static int PDF_PATH_FIELD_WIDTH = EAST_PANEL_WIDTH - FILE_CHOORE_BUTTON_WIDTH-10;
 	
 	
-	public static int PAGE_FIELD_WIDTH =35;
+	public static int PAGE_FIELD_WIDTH =30;
 	
 	
 	public static int SEARCH_FORM_HEIGHT =350;

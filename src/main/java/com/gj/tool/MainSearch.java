@@ -25,6 +25,11 @@ public class MainSearch {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
+		
+		
+//		ComContext comContext = init.getComContext();
+//		comContext.getSearchPanel().getKeywordField().setText("财务经理：");
+//		comContext.getSearchPanel().paintPdfImage("C:\\Users\\gj\\Desktop\\付款申请单 (1)的副本.pdf");
 	}
 	
 

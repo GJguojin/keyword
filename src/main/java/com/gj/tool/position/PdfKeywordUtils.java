@@ -16,6 +16,8 @@ import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 import com.itextpdf.text.pdf.parser.TextMarginFinder;
 import com.itextpdf.text.pdf.parser.TextRenderInfo;
 
+
+
 public class PdfKeywordUtils {
 
 	final static double DEF_SAME_LINE = 0.004;
@@ -138,17 +140,29 @@ public class PdfKeywordUtils {
 				PdfReaderContentParser parser = new PdfReaderContentParser(pdfReader);
 				if (options.getKeyIndex() >= 0) { // 查询全部 或 第n个关键字
 					for (int i = pageStart; i <= pageEnd; i++) {
-						if (canStop(null)) {
+						if (canStop()) {
 							break;
 						}
-						findPositions(parser, i);
+						try {
+							findPositions(parser, i);
+						} catch (Exception e) {
+							if (!e.getMessage().contains("query keyword stop")) {
+								throw e;
+							}
+						}
 					}
 				} else {
 					for (int i = pageEnd; i >= pageStart; i--) {
-						if (canStop(null)) {
+						if (canStop()) {
 							break;
 						}
-						findPositions(parser, i);
+						try {
+							findPositions(parser, i);
+						} catch (Exception e) {
+							if (!e.getMessage().contains("query keyword stop")) {
+								throw e;
+							}
+						}
 						// 处理跨页问题
 						if (i != pageEnd && !this.options.isIgnoreNewpage()) {
 							Set<String> globalsKeys = globals.keySet();
@@ -156,8 +170,32 @@ public class PdfKeywordUtils {
 								if (globals.get(globalsKey).size() > 0) {
 									crossPages.put(globalsKey, true);
 									int tempPage = i + 1;
-									findPositions(parser, tempPage);
+									try {
+										findPositions(parser, tempPage);
+									} catch (Exception e) {
+										if (!e.getMessage().contains("query keyword stop")) {
+											throw e;
+										}
+									}
 									crossPages.clear();
+								}
+							}
+						}
+						// 重新排序
+						Set<String> keySet = results.keySet();
+						for (String key : keySet) {
+							ArrayList<ResultPosition> result = results.get(key);
+							ArrayList<ResultPosition> tmp = new ArrayList<>();
+							for (int j = result.size() - 1; j >= 0; j--) {
+								ResultPosition resultPosition = result.get(j);
+								if (resultPosition.getEndPosition().getPage() == i) {
+									tmp.add(resultPosition);
+									result.remove(j);
+								}
+							}
+							if (tmp.size() > 0) {
+								for (ResultPosition resultPosition : tmp) {
+									result.add(resultPosition);
 								}
 							}
 						}
@@ -171,7 +209,11 @@ public class PdfKeywordUtils {
 				}
 			}
 
-			return getResults();
+			if (options.isReturnAll()) {
+				return results;
+			} else {
+				return getResults();
+			}
 		}
 
 		private void findPositions(PdfReaderContentParser parser, int currentPage) throws IOException {
@@ -184,10 +226,16 @@ public class PdfKeywordUtils {
 			parser.processContent(currentPage, new TextMarginFinder() {
 				@Override
 				public void renderText(TextRenderInfo renderInfo) {
+//					System.out.println("==" + String.format("%03d", currentPage) + "==" + String.format("%03d", renderInfo.getText().length()) + "====" + renderInfo.getText());
+//					List<TextRenderInfo> characterRenderInfos = renderInfo.getCharacterRenderInfos();
+//					for(TextRenderInfo tmep : characterRenderInfos) {
+//						System.out.println("=====>  【"+tmep.getText()+"】  "+tmep.getBaseline().getBoundingRectange().getX());
+//					}
+					
 					List<Position> positions = getkeyPositions(renderInfo, currentPage, width, height, rotation);
 					for (String keyword : globals.keySet()) {
-						if (canStop(keyword)) {
-							continue;
+						if (canStop() && options.getKeyIndex() > 0) {
+							throw new RuntimeException("query keyword stop");
 						}
 						ArrayList<Position> globalPositions = globals.get(keyword);
 						globalPositions.addAll(positions);
@@ -258,7 +306,13 @@ public class PdfKeywordUtils {
 						if (globalPositions.get(i).getText() == key[i]) {
 							if (i == key.length - 1) { // 查询到
 								ArrayList<ResultPosition> result = results.get(keyword);
-								ResultPosition resultPosition = new ResultPosition(startPositions.get(keyword), globalPositions.get(i));
+								int keySplitIndex = options.getKeySplitIndex();
+								ResultPosition resultPosition = null;
+								if (keySplitIndex > 0 && keySplitIndex <= i + 1) {
+									resultPosition = new ResultPosition(startPositions.get(keyword), globalPositions.get(keySplitIndex - 1));
+								} else {
+									resultPosition = new ResultPosition(startPositions.get(keyword), globalPositions.get(i));
+								}
 								if (options.isIgnoreNewline()) {// 忽略换行关键字
 									if (!resultPosition.isNewline()) {
 										result.add(resultPosition);
@@ -306,30 +360,18 @@ public class PdfKeywordUtils {
 		}
 
 		// 判断是否能结束查询
-		private boolean canStop(String keyword) {
+		private boolean canStop() {
 			int keyIndex = options.getKeyIndex();
 			if (keyIndex == 0) {
 				return false;
 			}
-			if (keyIndex < 0 && keyword != null) {
-				return false;
-			}
-
-			boolean stop = true;
-			if (keyword == null) {
-				Set<String> wkeys = results.keySet();
-				for (String key : wkeys) {
-					if (Math.abs(keyIndex) > results.get(key).size()) {
-						stop = false;
-						break;
-					}
-				}
-			} else {
-				if (keyIndex > results.get(keyword).size()) {
-					stop = false;
+			Set<String> wkeys = results.keySet();
+			for (String key : wkeys) {
+				if (Math.abs(keyIndex) > results.get(key).size()) {
+					return false;
 				}
 			}
-			return stop;
+			return true;
 		}
 
 		private Map<String, ArrayList<ResultPosition>> getResults() {
@@ -345,9 +387,9 @@ public class PdfKeywordUtils {
 				} else {
 					ResultPosition position = null;
 					if (keyIndex < 0) {
-						position = positions.get(positions.size()+keyIndex);
-					}else {
 						position = positions.get(Math.abs(keyIndex) - 1);
+					}else {
+						position = positions.get(keyIndex - 1);
 					}
 					positions.clear();
 					positions.add(position);

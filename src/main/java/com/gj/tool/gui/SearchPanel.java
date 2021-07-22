@@ -54,14 +54,16 @@ public class SearchPanel extends JPanel implements BasePanel {
 	private static KeywordSearchOptions searchOptions = new KeywordSearchOptions();
 
 	private JTextField keywordField;
+	
+	private JLabel pageLabel;
 
 	private JFormattedTextField startField;
 
 	private JFormattedTextField endField;
 
 	private JFormattedTextField indexField;
-
-	private JTextField totalPageField;
+	
+	private JFormattedTextField splitIndexField;
 
 	private ButtonGroup positionGroup;
 
@@ -183,6 +185,14 @@ public class SearchPanel extends JPanel implements BasePanel {
 		} catch (Exception e1) {
 		}
 		searchOptions.setKeyIndex(index);
+		
+		
+		int splitIndesc = -1;
+		try {
+			splitIndesc = Integer.parseInt(splitIndexField.getText());
+		} catch (Exception e1) {
+		}
+		searchOptions.setKeySplitIndex(splitIndesc);
 
 		PositionType positionType = PositionType.LEFT_BOTTOM;
 		Enumeration<AbstractButton> elements = positionGroup.getElements();
@@ -298,10 +308,17 @@ public class SearchPanel extends JPanel implements BasePanel {
 
 	private JPanel pagePanel() {
 		JPanel pagePanel = getBasePanel();
-		pagePanel.add(getBaseLabel("页数："));
+		pageLabel = getBaseLabel("页数：");
+		pagePanel.add(pageLabel);
+		
+		JPanel tempPanel = new JPanel();
+		tempPanel.setPreferredSize(new Dimension(CompSize.EAST_PANEL_WIDTH-CompSize.BASE_LABEL_WIDTH-5,CompSize.BASE_FORM_PANEL_HEIGHT+10));
+		FlowLayout f = (FlowLayout) tempPanel.getLayout();
+		f.setHgap(0);// 水平间距
+		pagePanel.add(tempPanel);
 
 		JLabel label0 = new JLabel("从");
-		pagePanel.add(label0);
+		tempPanel.add(label0);
 
 		startField = getNumberTextField(true,1);
 		startField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
@@ -309,12 +326,12 @@ public class SearchPanel extends JPanel implements BasePanel {
 		startField.setHorizontalAlignment(SwingConstants.CENTER);
 		startField.addFocusListener(new SeachOptionFocusListener(this));
 		startField.addKeyListener(new VoteElectKeyListener(true, false));
-		pagePanel.add(startField);
+		tempPanel.add(startField);
 
 		JLabel label1 = new JLabel("~");
 		label1.setPreferredSize(new Dimension(10, CompSize.BASE_FORM_PANEL_HEIGHT));
 		label1.setHorizontalAlignment(SwingConstants.CENTER);
-		pagePanel.add(label1);
+		tempPanel.add(label1);
 
 		endField = getNumberTextField(true,3);
 		endField.setText("3");
@@ -322,20 +339,13 @@ public class SearchPanel extends JPanel implements BasePanel {
 		endField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
 		endField.addFocusListener(new SeachOptionFocusListener(this));
 		endField.addKeyListener(new VoteElectKeyListener(true, false));
-		pagePanel.add(endField);
+		tempPanel.add(endField);
 
-		JLabel label2 = new JLabel("页 共");
-		pagePanel.add(label2);
+		JLabel label2 = new JLabel("页 ");
+		tempPanel.add(label2);
 
-		totalPageField = new JTextField();
-		totalPageField.setHorizontalAlignment(SwingConstants.CENTER);
-		totalPageField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH - 15, CompSize.BASE_FORM_PANEL_HEIGHT));
-		totalPageField.setEditable(false);
-//		totalPageField.setBorder(new EmptyBorder(0,0,0,0));
-		pagePanel.add(totalPageField);
-
-		JLabel label3 = new JLabel("页 第");
-		pagePanel.add(label3);
+		JLabel label3 = new JLabel("第");
+		tempPanel.add(label3);
 
 		indexField = getNumberTextField(true,0);
 		indexField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
@@ -343,10 +353,22 @@ public class SearchPanel extends JPanel implements BasePanel {
 		indexField.setToolTipText("<html>0：全部 <br>n：第n个<br>-n：表示倒数第n个</html>");
 		indexField.addFocusListener(new SeachOptionFocusListener(this));
 		indexField.addKeyListener(new VoteElectKeyListener(true, true));
-		pagePanel.add(indexField);
+		tempPanel.add(indexField);
 
-		JLabel label4 = new JLabel("个关键字");
-		pagePanel.add(label4);
+		JLabel label4 = new JLabel("个关键字的第");
+		tempPanel.add(label4);
+		
+		
+		splitIndexField = getNumberTextField(true,-1);
+		splitIndexField.setPreferredSize(new Dimension(CompSize.PAGE_FIELD_WIDTH, CompSize.BASE_FORM_PANEL_HEIGHT));
+		splitIndexField.setHorizontalAlignment(SwingConstants.CENTER);
+		splitIndexField.setToolTipText("<html>-1：表示最后一个<br>n：关键字的第n个字</html>");
+		splitIndexField.addFocusListener(new SeachOptionFocusListener(this));
+		splitIndexField.addKeyListener(new VoteElectKeyListener(true, true));
+		tempPanel.add(splitIndexField);
+		
+		JLabel label5 = new JLabel("个字");
+		tempPanel.add(label5);
 
 		return pagePanel;
 	}
@@ -482,7 +504,7 @@ public class SearchPanel extends JPanel implements BasePanel {
 				endField.setText("" + images.size());
 			}
 		}
-		totalPageField.setText("" + images.size());
+		pageLabel.setText("页数("+images.size()+")：");
 	}
 
 	private JLabel getBaseLabel(String title) {

@@ -76,4 +76,9 @@ public class MainFrame extends JFrame {
 		this.east = east;
 	}
 
+	public ComContext getComContext() {
+		return comContext;
+	}
+
+
 }

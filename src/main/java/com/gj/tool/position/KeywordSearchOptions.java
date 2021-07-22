@@ -12,10 +12,13 @@ public class KeywordSearchOptions {
 	PositionType position = PositionType.RIGHT_BOTTOM; //位置信息
 	Set<PositionType> otherPosition;
 	private int keyIndex=0;             //第几个关键字 0:全部 -1:最后一个 其他:第keyIndex个  
+	private int keySplitIndex=-1;        //取第几个字的位置 -1:最后一个 其他 第keySplitIndex个
 	private boolean ignoreContentSpace = true; //忽略文档空格
 	private boolean ignoreKeywordSpace = true; //忽略文档空格
 	private boolean ignoreNewline = false; //是否忽略换行
 	private boolean ignoreNewpage = false; //是否忽略换页
+	/** 是否返回全部结果，自己筛选 */
+	private boolean returnAll = false;
 	
 	public enum PositionType{
 		LEFT_TOP,     //左上
@@ -30,15 +33,23 @@ public class KeywordSearchOptions {
 		CENTER_CENTER,
 		BOTTOM_CENTER;//下中
 		
-		boolean isLeft() {
+		public boolean isLeft() {
 			return this == LEFT_TOP || this == LEFT_BOTTOM || this == LEFT_CENTER;
 		}
 		
-		boolean isTop() {
+		public boolean isTop() {
 			return this == LEFT_TOP || this == RIGHT_TOP || this == TOP_CENTER;
 		}
 	}
-	
+
+	public boolean isReturnAll() {
+		return returnAll;
+	}
+
+	public void setReturnAll(boolean returnAll) {
+		this.returnAll = returnAll;
+	}
+
 	public void setFromHead(boolean fromHead) {
 		if(fromHead) {
 			this.position = PositionType.LEFT_BOTTOM;
@@ -121,4 +132,13 @@ public class KeywordSearchOptions {
 	public void setOtherPosition(Set<PositionType> otherPosition) {
 		this.otherPosition = otherPosition;
 	}
+
+	public int getKeySplitIndex() {
+		return keySplitIndex;
+	}
+
+	public void setKeySplitIndex(int keySplitIndex) {
+		this.keySplitIndex = keySplitIndex;
+	}
+	
 }

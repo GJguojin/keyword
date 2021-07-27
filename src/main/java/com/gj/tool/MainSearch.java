@@ -2,6 +2,7 @@ package com.gj.tool;
 
 import javax.swing.UIManager;
 
+import com.gj.tool.gui.ComContext;
 import com.gj.tool.gui.CompSize;
 import com.gj.tool.gui.MainFrame;
 import com.itextpdf.text.log.LoggerFactory;
@@ -27,9 +28,9 @@ public class MainSearch {
 		}
 		
 		
-//		ComContext comContext = init.getComContext();
-//		comContext.getSearchPanel().getKeywordField().setText("财务经理：");
-//		comContext.getSearchPanel().paintPdfImage("C:\\Users\\gj\\Desktop\\付款申请单 (1)的副本.pdf");
+		ComContext comContext = init.getComContext();
+		comContext.getSearchPanel().getKeywordField().setText("签订本合同");
+		comContext.getSearchPanel().paintPdfImage("C:\\Users\\gj\\Desktop\\测试用文档\\KeywordTest\\00.pdf");
 	}
 	
 

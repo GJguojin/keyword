@@ -19,8 +19,6 @@ import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 import com.itextpdf.text.pdf.parser.TextMarginFinder;
 import com.itextpdf.text.pdf.parser.TextRenderInfo;
 
-
-
 public class PdfKeywordUtils {
 
 	final static double DEF_SAME_LINE = 0.004;
@@ -81,8 +79,8 @@ public class PdfKeywordUtils {
 	 */
 	public static Map<String, ArrayList<KeywordPosition>> queryKeyword(byte[] pdfBytes, KeywordSearchOptions options) throws KeywordSearchException {
 		try {
-			//兼容returnAll字段
-			if(options.isReturnAll()) {
+			// 兼容returnAll字段
+			if (options.isReturnAll()) {
 				options.setKeyIndex(0);
 			}
 			Map<String, ArrayList<ResultPosition>> positions = new ITextKeyPosition(pdfBytes, options).getPositions();
@@ -233,7 +231,7 @@ public class PdfKeywordUtils {
 //					for(TextRenderInfo tmep : characterRenderInfos) {
 //						System.out.println("=====>  【"+tmep.getText()+"】  "+tmep.getBaseline().getBoundingRectange().getX());
 //					}
-					
+
 					List<Position> positions = getkeyPositions(renderInfo, currentPage, width, height, rotation);
 					for (String keyword : globals.keySet()) {
 						if (canStop() && options.getKeyIndex() > 0) {
@@ -359,7 +357,7 @@ public class PdfKeywordUtils {
 					ResultPosition position = null;
 					if (keyIndex < 0) {
 						position = positions.get(Math.abs(keyIndex) - 1);
-					}else {
+					} else {
 						position = positions.get(keyIndex - 1);
 					}
 					positions.clear();
@@ -387,18 +385,17 @@ public class PdfKeywordUtils {
 		public ResultPosition(Position startPosition, Position endPosition) {
 			super();
 			this.startPosition = startPosition;
-			TextRenderInfo startTextRenderInfo = getCharacterRenderInfo(startPosition.getTextRenderInfo(),startPosition.getIndex());
-			startTextRenderInfo.getText();
-			this.startPosition.setCharacterRenderInfo(startTextRenderInfo);
+			TextRenderInfo startTextRenderInfo = getCharacterRenderInfo(startPosition.getTextRenderInfo(), startPosition.getIndex());
+			if (startTextRenderInfo != null) {
+				startTextRenderInfo.getText();
+				this.startPosition.setCharacterRenderInfo(startTextRenderInfo);
+			}
 			this.endPosition = endPosition;
-			TextRenderInfo endTextRenderInfo = getCharacterRenderInfo(endPosition.getTextRenderInfo(),endPosition.getIndex());
-			endTextRenderInfo.getText();
-			this.endPosition.setCharacterRenderInfo(endTextRenderInfo);
-		}
-		
-		private TextRenderInfo getCharacterRenderInfo(TextRenderInfo textRenderInfo,int index) {
-			List<TextRenderInfo> characterRenderInfos = textRenderInfo.getCharacterRenderInfos();
-			return characterRenderInfos.get(index);
+			TextRenderInfo endTextRenderInfo = getCharacterRenderInfo(endPosition.getTextRenderInfo(), endPosition.getIndex());
+			if (endTextRenderInfo != null) {
+				endTextRenderInfo.getText();
+				this.endPosition.setCharacterRenderInfo(endTextRenderInfo);
+			}
 		}
 
 		/**
@@ -413,7 +410,7 @@ public class PdfKeywordUtils {
 			int rotation = startPosition.getRotation();
 			double startY = startPosition.getTextRenderInfo().getDescentLine().getBoundingRectange().getY();
 			double endY = endPosition.getTextRenderInfo().getAscentLine().getBoundingRectange().getY();
-			
+
 			double startX = startPosition.getTextRenderInfo().getDescentLine().getBoundingRectange().getX();
 			double endX = endPosition.getTextRenderInfo().getAscentLine().getBoundingRectange().getX();
 			switch (rotation) {
@@ -457,16 +454,16 @@ public class PdfKeywordUtils {
 		public KeywordPosition convert(KeywordSearchOptions options) {
 			PositionType positionType = options.getPosition();
 			Position position = calc(positionType);
-			KeywordPosition keywordPosition = new KeywordPosition(position,positionType);
+			KeywordPosition keywordPosition = new KeywordPosition(position, positionType);
 			Set<PositionType> otherPosition = options.getOtherPosition();
-			if(otherPosition != null) {
-				otherPosition.forEach(o ->{
-					keywordPosition.putOtherPosition(o, new KeywordPosition(calc(o),o));
+			if (otherPosition != null) {
+				otherPosition.forEach(o -> {
+					keywordPosition.putOtherPosition(o, new KeywordPosition(calc(o), o));
 				});
 			}
 			return keywordPosition;
 		}
-		
+
 		private Position calc(PositionType positionType) {
 			Position position = null;
 			switch (positionType) {
@@ -482,35 +479,35 @@ public class PdfKeywordUtils {
 			case LEFT_CENTER:
 				Position leftTop = calcApex(PositionType.LEFT_TOP);
 				Position leftBottom = calcApex(PositionType.LEFT_BOTTOM);
-				position = calcCenter(new Position(startPosition), leftTop, leftBottom,false);
+				position = calcCenter(new Position(startPosition), leftTop, leftBottom, false);
 				break;
 
 			case RIGHT_CENTER:
 				Position rightTop = calcApex(PositionType.RIGHT_TOP);
 				Position rightBottom = calcApex(PositionType.RIGHT_BOTTOM);
-				position = calcCenter(new Position(endPosition), rightTop, rightBottom,false);
+				position = calcCenter(new Position(endPosition), rightTop, rightBottom, false);
 				break;
 
 			case TOP_CENTER:
 				Position leftT = calcApex(PositionType.LEFT_TOP);
 				Position rightT = calcApex(PositionType.RIGHT_TOP);
-				position = calcCenter(new Position(endPosition), leftT, rightT,true);
+				position = calcCenter(new Position(endPosition), leftT, rightT, true);
 				break;
 
 			case BOTTOM_CENTER:
 				Position leftB = calcApex(PositionType.LEFT_BOTTOM);
 				Position rightB = calcApex(PositionType.RIGHT_BOTTOM);
-				position = calcCenter(new Position(endPosition), leftB, rightB,true);
+				position = calcCenter(new Position(endPosition), leftB, rightB, true);
 				break;
 
 			case CENTER_CENTER:
 				Position rightBo = calcApex(PositionType.RIGHT_BOTTOM);
 				if (isNewline() || isNewpage()) {
 					Position rightTo = calcApex(PositionType.RIGHT_TOP);
-					position = calcCenter(new Position(endPosition), rightTo, rightBo,false);
+					position = calcCenter(new Position(endPosition), rightTo, rightBo, false);
 				} else {
 					Position leftTo = calcApex(PositionType.LEFT_TOP);
-					position = calcCenter(new Position(endPosition), leftTo, rightBo,false);
+					position = calcCenter(new Position(endPosition), leftTo, rightBo, false);
 				}
 				break;
 			default:
@@ -519,7 +516,7 @@ public class PdfKeywordUtils {
 			return position;
 		}
 
-		public Position calcCenter(Position position, Position aP, Position bP,boolean check) {
+		public Position calcCenter(Position position, Position aP, Position bP, boolean check) {
 			if (check && (isNewline() || isNewpage())) {
 				return bP;
 			}
@@ -556,7 +553,7 @@ public class PdfKeywordUtils {
 			return position;
 		}
 
-		private void calcApex(Position position,LineSegment lineSegment, boolean isLeft) {
+		private void calcApex(Position position, LineSegment lineSegment, boolean isLeft) {
 			Float f = lineSegment.getBoundingRectange();
 			double coordinateX = 0;
 			switch (position.getRotation()) {
@@ -584,43 +581,43 @@ public class PdfKeywordUtils {
 			default:
 				position.setCoordinateY(f.y);
 				position.setY(f.y / position.getHeight());
-				position.setCoordinateX(calcWidth(position,isLeft));
-				position.setX(position.getCoordinateX()/position.getWidth());
+				position.setCoordinateX(calcWidth(position, isLeft));
+				position.setX(position.getCoordinateX() / position.getWidth());
 				break;
 			}
 		}
-		
+
 		private double calcWidth(Position position, boolean fromHead) {
-			if(position.getCharacterRenderInfo().getText() == null || "".equals(position.getCharacterRenderInfo().getText())) {
-				return availableWidth(position,fromHead);
-			}
 			TextRenderInfo characterRenderInfo = position.getCharacterRenderInfo();
+			if (characterRenderInfo == null || characterRenderInfo.getText() == null || "".equals(characterRenderInfo.getText())) {
+				return availableWidth(position, fromHead);
+			}
 			Float boundingRectange = characterRenderInfo.getBaseline().getBoundingRectange();
 			int rotation = position.getRotation();
 			double calcWidth = 0;
 			switch (rotation) {
 			case 90:
 				calcWidth = boundingRectange.y;
-				if(!fromHead) {
-					calcWidth = calcWidth +boundingRectange.getHeight();
+				if (!fromHead) {
+					calcWidth = calcWidth + boundingRectange.getHeight();
 				}
 				break;
 			case 180:
 				calcWidth = boundingRectange.x + boundingRectange.getWidth();
-				if(!fromHead) {
+				if (!fromHead) {
 					calcWidth = calcWidth - boundingRectange.getWidth();
 				}
 				break;
 			case 270:
-				calcWidth = boundingRectange.y+boundingRectange.getHeight();
-				if(!fromHead) {
+				calcWidth = boundingRectange.y + boundingRectange.getHeight();
+				if (!fromHead) {
 					calcWidth = calcWidth - boundingRectange.getHeight();
 				}
 				break;
 			default:
 				calcWidth = boundingRectange.x;
-				if(!fromHead) {
-					calcWidth = calcWidth +boundingRectange.getWidth();
+				if (!fromHead) {
+					calcWidth = calcWidth + boundingRectange.getWidth();
 				}
 				break;
 			}
@@ -700,7 +697,6 @@ public class PdfKeywordUtils {
 			this.setWidth(width);
 			this.setHeight(height);
 		}
-		
 
 		public Position(Position position) {
 			this.textRenderInfo = position.getTextRenderInfo();
@@ -711,26 +707,23 @@ public class PdfKeywordUtils {
 			this.setPage(position.getPage());
 			this.setWidth(position.getWidth());
 			this.setHeight(position.getHeight());
-			if(this.characterRenderInfo == null) {
-				this.characterRenderInfo = this.textRenderInfo.getCharacterRenderInfos().get(index);
-			}
 		}
-		
+
 		public LineSegment handleAscentLine() {
 			return handleLineSegment("ascent");
 		}
-		
+
 		public LineSegment handleDescentLine() {
 			return handleLineSegment("descent");
 		}
-		
+
 		private double calcCentLine() {
 			double baseY = characterRenderInfo.getBaseline().getBoundingRectange().getMaxY();
 			double asY = characterRenderInfo.getAscentLine().getBoundingRectange().getMaxY();
 			double desY = characterRenderInfo.getDescentLine().getBoundingRectange().getMaxY();
-			return Math.min(Math.abs(baseY-asY), Math.abs(baseY-desY));
+			return Math.min(Math.abs(baseY - asY), Math.abs(baseY - desY));
 		}
-		
+
 		private LineSegment handleLineSegment(String type) {
 			LineSegment result = null;
 			try {
@@ -765,7 +758,7 @@ public class PdfKeywordUtils {
 			}
 			return result;
 		}
-		
+
 		public char getText() {
 			return text;
 		}
@@ -805,5 +798,55 @@ public class PdfKeywordUtils {
 		public void setCharacterRenderInfo(TextRenderInfo characterRenderInfo) {
 			this.characterRenderInfo = characterRenderInfo;
 		}
+	}
+
+	private static TextRenderInfo getCharacterRenderInfo(TextRenderInfo textRenderInfo, int index) {
+		List<TextRenderInfo> characterRenderInfos = textRenderInfo.getCharacterRenderInfos();
+		String text = textRenderInfo.getText();
+		if (text.length() != characterRenderInfos.size()) {
+			char baseChar = text.charAt(index);
+			int count = 0;
+			for (int i = 0; i < index; i++) {
+				if (baseChar == text.charAt(i)) {
+					count++;
+				}
+			}
+			int infoCount = 0;
+			TextRenderInfo resultInfo = null;
+			for (TextRenderInfo info : characterRenderInfos) {
+				if (calcInfo(info.getText(), baseChar, count, infoCount)) {
+					resultInfo = info;
+					break;
+				}
+			}
+			if (resultInfo == null) {
+				infoCount = 0;
+				for (TextRenderInfo info : characterRenderInfos) {
+					if (calcInfo(info.getPdfString().toString(), baseChar, count, infoCount)) {
+						resultInfo = info;
+						break;
+					}
+				}
+			}
+			return resultInfo;
+		} else {
+			return characterRenderInfos.get(index);
+		}
+	}
+
+	private static boolean calcInfo(String infoText, char baseChar, int count, int infoCount) {
+		if (infoText == null || infoText.length() == 0) {
+			return false;
+		}
+		for (char charInfo : infoText.toCharArray()) {
+			if (charInfo == baseChar) {
+				if (count == infoCount) {
+					return true;
+				} else {
+					infoCount++;
+				}
+			}
+		}
+		return false;
 	}
 }

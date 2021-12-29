@@ -1,6 +1,7 @@
 package net.qiyuesuo.test.itext5;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 
 import org.junit.Test;
@@ -35,5 +36,10 @@ public class FontTest {
 		}
 	}
 	
+	public static void main(String[] args) throws IOException {
+		PdfReader pdfReader = new PdfReader("C:\\Users\\gj\\Desktop\\wk\\pdf_test2.pdf");
+		String textFromPage = PdfTextExtractor.getTextFromPage(pdfReader, 1);
+		System.out.println(textFromPage);
+	}
 
 }

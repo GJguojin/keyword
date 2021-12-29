@@ -29,8 +29,8 @@ public class MainSearch {
 		
 		
 		ComContext comContext = init.getComContext();
-		comContext.getSearchPanel().getKeywordField().setText("签订本合同");
-		comContext.getSearchPanel().paintPdfImage("C:\\Users\\gj\\Desktop\\测试用文档\\KeywordTest\\00.pdf");
+//		comContext.getSearchPanel().getKeywordField().setText("签订本合同");
+//		comContext.getSearchPanel().paintPdfImage("C:\\Users\\gj\\Desktop\\测试用文档\\KeywordTest\\00.pdf");
 	}
 	
 

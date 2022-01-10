@@ -120,6 +120,7 @@ public class PdfContentStreamProcessor {
 	 * @since 5.0.2
 	 */
 	private final Stack<MarkedContentInfo> markedContentStack = new Stack<MarkedContentInfo>();
+	
 
 	/**
 	 * Creates a new PDF Content Stream Processor that will send it's output to the
@@ -366,7 +367,7 @@ public class PdfContentStreamProcessor {
 	private void displayPdfString(PdfString string) {
 		// 解决关键字查询过程中 /ActualText结构导致关键字重复问题
 		if (!markedContentStack.isEmpty() && markedContentStack.get(0).isActualText()) {
-			LOGGER.warn(" ActualText ignore");
+			LOGGER.warn("use qys PdfContentStreamProcessor handle \\ActualText");
 			return;
 		}
 

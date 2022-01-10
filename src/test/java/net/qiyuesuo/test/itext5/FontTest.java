@@ -10,6 +10,8 @@ import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.log.LoggerFactory;
 import com.itextpdf.text.log.SysoLogger;
 import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.fonts.cmaps.CMapCache;
+import com.itextpdf.text.pdf.fonts.cmaps.CMapCidUni;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 
 public class FontTest {
@@ -37,9 +39,12 @@ public class FontTest {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		PdfReader pdfReader = new PdfReader("C:\\Users\\gj\\Desktop\\wk\\pdf_test2.pdf");
+		CMapCidUni cachedCMapCidUni = CMapCache.getCachedCMapCidUni("GBK-EUC-H");
+		
+		PdfReader pdfReader = new PdfReader("C:\\Users\\gj\\Desktop\\wk\\pdf_test1.pdf");
 		String textFromPage = PdfTextExtractor.getTextFromPage(pdfReader, 1);
 		System.out.println(textFromPage);
+		pdfReader.close();
 	}
 
 }

@@ -1,8 +1,7 @@
 /*
- * $Id: 8fb4ea792a6c69d120f9850a140ffd33f446828f $
  *
  * This file is part of the iText (R) project.
- * Copyright (c) 1998-2016 iText Group NV
+    Copyright (c) 1998-2022 iText Group NV
  * Authors: Kevin Day, Bruno Lowagie, Paulo Soares, et al.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -50,7 +49,6 @@ import com.itextpdf.text.pdf.PdfNumber;
 
 /**
  * Represents a Marked Content block in a PDF
- * 
  * @since 5.0.2
  */
 public class MarkedContentInfo {
@@ -59,46 +57,43 @@ public class MarkedContentInfo {
 
 	public MarkedContentInfo(PdfName tag, PdfDictionary dictionary) {
 		this.tag = tag;
-		this.dictionary = dictionary != null ? dictionary : new PdfDictionary(); // I'd really prefer to make a defensive copy here to make this
-																					// immutable
+		this.dictionary = dictionary != null ? dictionary : new PdfDictionary(); // I'd really prefer to make a defensive copy here to make this immutable
 	}
 
 	/**
 	 * Get the tag of this marked content
-	 * 
 	 * @return the tag of this marked content
 	 */
-	public PdfName getTag() {
+	public PdfName getTag(){
 		return tag;
 	}
 
 	/**
 	 * Determine if an MCID is available
-	 * 
 	 * @return true if the MCID is available, false otherwise
 	 */
-	public boolean hasMcid() {
+	public boolean hasMcid(){
 		return dictionary.contains(PdfName.MCID);
 	}
 
 	/**
-	 * Gets the MCID value If the Marked Content contains
-	 * an MCID entry, returns that value. Otherwise, a {@link NullPointerException} is thrown.
-	 * 
+	 * Gets the MCID value  If the Marked Content contains
+	 * an MCID entry, returns that value.  Otherwise, a {@link NullPointerException} is thrown.
 	 * @return the MCID value
 	 * @throws NullPointerException if there is no MCID (see {@link MarkedContentInfo#hasMcid()})
 	 */
-	public int getMcid() {
+	public int getMcid(){
 		PdfNumber id = dictionary.getAsNumber(PdfName.MCID);
-		if (id == null) {
+		if (id == null)
 			throw new IllegalStateException("MarkedContentInfo does not contain MCID");
-		}
 
 		return id.intValue();
 	}
 
+
 	/**
 	 * Determine if an ActualText is available
+	 *
 	 * @return
 	 */
 	public boolean isActualText() {

@@ -1,8 +1,7 @@
 /*
- * $Id: df1a2071ca3c247f0ad79b6aed1b322be21b0ac3 $
  *
  * This file is part of the iText (R) project.
- * Copyright (c) 1998-2016 iText Group NV
+    Copyright (c) 1998-2022 iText Group NV
  * Authors: Bruno Lowagie, Paulo Soares, et al.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -57,13 +56,11 @@ import com.itextpdf.text.pdf.PdfString;
  * @author psoares
  */
 public abstract class AbstractCMap {
-	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCMap.class);
-
 	private String cmapName;
 	private String registry;
 	private String ordering;
 	private int supplement;
-	
+
 	public String getName() {
 		return cmapName;
 	}
@@ -101,13 +98,11 @@ public abstract class AbstractCMap {
 	void addRange(PdfString from, PdfString to, PdfObject code) {
 		byte[] a1 = decodeStringToByte(from);
 		byte[] a2 = decodeStringToByte(to);
-		if (a1.length != a2.length || a1.length == 0) {
+		if (a1.length != a2.length || a1.length == 0)
 			throw new IllegalArgumentException("Invalid map.");
-		}
 		byte[] sout = null;
-		if (code instanceof PdfString) {
-			sout = decodeStringToByte((PdfString) code);
-		}
+		if (code instanceof PdfString)
+			sout = decodeStringToByte((PdfString)code);
 		int start = byteArrayToInt(a1);
 		int end = byteArrayToInt(a2);
 		for (int k = start; k <= end; ++k) {
@@ -115,19 +110,20 @@ public abstract class AbstractCMap {
 			PdfString s = new PdfString(a1);
 			s.setHexWriting(true);
 			if (code instanceof PdfArray) {
-				addChar(s, ((PdfArray) code).getPdfObject(k - start));
-			} else if (code instanceof PdfNumber) {
-				int nn = ((PdfNumber) code).intValue() + k - start;
+				addChar(s, ((PdfArray)code).getPdfObject(k - start));
+			}
+			else if (code instanceof PdfNumber) {
+				int nn = ((PdfNumber)code).intValue() + k - start;
 				addChar(s, new PdfNumber(nn));
-			} else if (code instanceof PdfString) {
+			}
+			else if (code instanceof PdfString) {
 				PdfString s1 = new PdfString(sout);
 				s1.setHexWriting(true);
-				
-				//解决mpdf生成pdf 字体ToUnicode字典 1 beginbfrange<0000> <ffff> <0000> endbfrange导致itext读取乱码问题
-				// ++sout[sout.length - 1];
+
+				//CLOUD-5586 PHP转PDF工具mPDF生成的PDF关键字无法识别
 				assert sout != null;
 				intToByteArray(byteArrayToInt(sout) + 1, sout);
-				
+
 				addChar(s, s1);
 			}
 		}
@@ -135,7 +131,7 @@ public abstract class AbstractCMap {
 
 	private static void intToByteArray(int v, byte[] b) {
 		for (int k = b.length - 1; k >= 0; --k) {
-			b[k] = (byte) v;
+			b[k] = (byte)v;
 			v = v >>> 8;
 		}
 	}
@@ -157,10 +153,9 @@ public abstract class AbstractCMap {
 	}
 
 	public String decodeStringToUnicode(PdfString ps) {
-		if (ps.isHexWriting()) {
+		if (ps.isHexWriting())
 			return PdfEncodings.convertToString(ps.getBytes(), "UnicodeBigUnmarked");
-		} else {
+		else
 			return ps.toUnicodeString();
-		}
 	}
 }
